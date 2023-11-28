@@ -86,6 +86,8 @@ export default class RubiksCube {
   constructor(
     canvas: HTMLCanvasElement,
     canvasLeft: HTMLCanvasElement,
+    canvasBack: HTMLCanvasElement,
+    canvasDown: HTMLCanvasElement,
     materials: THREE.MeshBasicMaterial[],
     speed: number = 1000,
   ) {
@@ -108,6 +110,18 @@ export default class RubiksCube {
       canvasLeft,
       new THREE.Vector3(-10, 0.5, 0.5),
       new THREE.Vector3(0, 0.5, 0.5)))
+
+    // Back view
+    this.cameraViews.push(new CameraView(
+      canvasBack,
+      new THREE.Vector3(0.5, 0.5, -10),
+      new THREE.Vector3(0.5, 0.5, 0)))
+
+    // Down view
+    this.cameraViews.push(new CameraView(
+      canvasDown,
+      new THREE.Vector3(0.5, -10, 0.5),
+      new THREE.Vector3(0.5, 0, 0.5)))
 
     this.resize();
     this.render();

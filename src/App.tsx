@@ -2,6 +2,11 @@ import React, { useRef, useEffect, useState } from 'react';
 import RubiksCube from './RubiksCube';
 import materials from './materials';
 
+// TODO: add button to allow changing cube size
+// Add buttons to turn new faces
+// Add color type
+// Add rotations on the type
+// Layout the faces together
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvasRefLeft = useRef<HTMLCanvasElement>(null);
@@ -15,6 +20,8 @@ function App() {
       && canvasRefBack.current
       && canvasRefDown.current) {
       setCube(new RubiksCube(
+//        5,
+        3,
         canvasRef.current,
         canvasRefLeft.current,
         canvasRefBack.current,

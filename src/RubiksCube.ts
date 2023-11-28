@@ -20,11 +20,18 @@ enum Axis {
   z = 'z',
 }
 
-function generateCubeCluster(materials: THREE.MeshBasicMaterial[]): CubeMesh[] {
+// Creates a cubeSize x cubeSize x cubeSize cubes, where the cubes
+// are centered around the origin.
+function generateCubeCluster(
+  cubeSize: number,
+  materials: THREE.MeshBasicMaterial[],
+): CubeMesh[] {
+  const startingPos = -(cubeSize - 1) / 2;
+  const endingPos = (cubeSize - 1) / 2;
   const cubes = [];
-  for (let z = -1; z < 2; z++) {
-    for (let y = -1; y < 2; y++) {
-      for (let x = -1; x < 2; x++) {
+  for (let z = startingPos; z <= endingPos; z += 1) {
+    for (let y = startingPos; y <= endingPos; y += 1) {
+      for (let x = startingPos; x <= endingPos; x += 1) {
         const cube = new CubeMesh({
           position: new THREE.Vector3(x, y, z),
           materials: materials,
@@ -36,6 +43,7 @@ function generateCubeCluster(materials: THREE.MeshBasicMaterial[]): CubeMesh[] {
   return cubes;
 }
 
+// Renders the scene into the provided canvas, using the camera parameters
 class CameraView {
   private camera: THREE.PerspectiveCamera;
   private renderer: THREE.Renderer;
@@ -80,10 +88,12 @@ export default class RubiksCube {
   private locked: boolean = false;
   private materials: THREE.MeshBasicMaterial[];
   private speed: number;
+  private cubeSize: number;
   private scene: THREE.Scene;
   private cameraViews: CameraView[];
 
   constructor(
+    cubeSize: number,
     canvas: HTMLCanvasElement,
     canvasLeft: HTMLCanvasElement,
     canvasBack: HTMLCanvasElement,
@@ -91,17 +101,20 @@ export default class RubiksCube {
     materials: THREE.MeshBasicMaterial[],
     speed: number = 1000,
   ) {
+    this.cubeSize = cubeSize;
     this.materials = materials;
     this.speed = speed;
 
     this.scene = new THREE.Scene();
-    this.scene.add(...generateCubeCluster(this.materials));
+    this.scene.add(...generateCubeCluster(this.cubeSize, this.materials));
 
     this.cameraViews = [];
 
     // Main view
     this.cameraViews.push(new CameraView(
       canvas,
+      // TODO: adjust for bigger cubes
+      // new THREE.Vector3(7, 7, 7),
       new THREE.Vector3(4, 4, 4),
       new THREE.Vector3(0, -0.33, 0)));
 
@@ -142,6 +155,8 @@ export default class RubiksCube {
 
   // Front
   public async F(clockwise: boolean = true, duration: number = this.speed) {
+    // TODO: adjust for bigger cubes
+    //const cubes = this.scene.children.filter((node) => node instanceof CubeMesh && node.position.z === 2);
     const cubes = this.scene.children.filter((node) => node instanceof CubeMesh && node.position.z === 1);
     await this.rotate(cubes, Axis.z, clockwise, duration);
   }

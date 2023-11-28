@@ -4,11 +4,16 @@ import materials from './materials';
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef2 = useRef<HTMLCanvasElement>(null);
   const [cube, setCube] = useState<RubiksCube>();
 
   useEffect(() => {
-    if (canvasRef.current) {
-      setCube(new RubiksCube(canvasRef.current, materials.classic, 100));
+    if (canvasRef.current && canvasRef2.current) {
+      setCube(new RubiksCube(
+        canvasRef.current,
+        canvasRef2.current,
+        materials.classic,
+        100));
     }
   }, []);
 
@@ -18,7 +23,8 @@ function App() {
         <table>
           <tr>
             <td>
-              <canvas width="200px" height="200px" ref={canvasRef} />
+              <canvas width="100px" height="100px" ref={canvasRef2} />
+              <canvas width="100px" height="100px" ref={canvasRef} />
             </td>
           </tr>
           <tr>

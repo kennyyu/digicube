@@ -38,15 +38,23 @@ function generateCubeCluster(materials: THREE.MeshBasicMaterial[]): CubeMesh[] {
 
 export default class RubiksCube {
   private camera: THREE.PerspectiveCamera;
+  private camera2: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
   private renderer: THREE.Renderer;
+  private renderer2: THREE.Renderer;
   private locked: boolean = false;
+  private materials: THREE.MeshBasicMaterial[];
+  private speed: number;
 
   constructor(
     canvas: HTMLCanvasElement,
-    private materials: THREE.MeshBasicMaterial[],
-    private speed: number = 1000,
+    canvas2: HTMLCanvasElement,
+    materials: THREE.MeshBasicMaterial[],
+    speed: number = 1000,
   ) {
+    this.materials = materials;
+    this.speed = speed;
+
     this.camera = new THREE.PerspectiveCamera();
     this.camera.position.set(4, 4, 4);
     this.camera.lookAt(0, -0.33, 0);
@@ -56,11 +64,26 @@ export default class RubiksCube {
 
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
-      canvas,
+      canvas: canvas,
       alpha: true,
     });
     this.renderer.domElement.style.width = canvas.style.width;
     this.renderer.domElement.style.height = canvas.style.height;
+
+    this.camera2 = new THREE.PerspectiveCamera();
+//    this.camera2.position.set(-4, -4, -4);
+//    this.camera2.lookAt(0, 0.66, 0);
+
+    this.camera2.position.set(-10, 0.5, 0.5);
+    this.camera2.lookAt(0, 0.5, 0.5);
+
+    this.renderer2 = new THREE.WebGLRenderer({
+      antialias: true,
+      canvas: canvas2,
+      alpha: true,
+    });
+    this.renderer2.domElement.style.width = canvas2.style.width;
+    this.renderer2.domElement.style.height = canvas2.style.height;
 
     this.resize();
     this.render();
@@ -76,6 +99,13 @@ export default class RubiksCube {
       this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(width, height, false);
+    }
+
+    const canvas2 = this.renderer2.domElement;
+    if (canvas2.width !== width || canvas2.height !== height) {
+      this.camera2.aspect = canvas2.clientWidth / canvas2.clientHeight;
+      this.camera2.updateProjectionMatrix();
+      this.renderer2.setSize(width, height, false);
     }
   }
 
@@ -200,5 +230,6 @@ export default class RubiksCube {
   private render() {
     window.requestAnimationFrame(this.render.bind(this));
     this.renderer.render(this.scene, this.camera);
+    this.renderer2.render(this.scene, this.camera2);
   }
 }

@@ -1,16 +1,131 @@
 import * as THREE from 'three';
 
-type CubeMeshProps = {
-  position: THREE.Vector3;
-  materials: THREE.MeshBasicMaterial[];
-};
+enum Color {
+  blue = "blue",
+  green = "green",
+  orange = "orange",
+  red = "red",
+  white = "white",
+  yellow = "yellow",
+}
 
+class CubeFaceColors {
+  public up: Color;
+  public down: Color;
+  public front: Color;
+  public back: Color;
+  public right: Color;
+  public left: Color;
+
+  constructor(
+    up: Color,
+    down: Color,
+    front: Color,
+    back: Color,
+    right: Color,
+    left: Color,
+  ) {
+    this.up = up;
+    this.down = down;
+    this.front = front;
+    this.back = back;
+    this.right = right;
+    this.left = left;
+  }
+
+  public x(clockwise: boolean): void {
+    if (clockwise) {
+      // front -> up -> back -> down
+      const temp = this.front;
+      this.front = this.down;
+      this.down = this.back;
+      this.back = this.up;
+      this.up = temp;
+    } else {
+      // front -> down -> back -> up
+      const temp = this.front;
+      this.front = this.up;
+      this.up = this.back;
+      this.back = this.down;
+      this.down = temp;
+    }
+  }
+
+  public y(clockwise: boolean): void {
+    if (clockwise) {
+      // front -> left -> back -> right
+      const temp = this.front;
+      this.front = this.right;
+      this.right = this.back;
+      this.back = this.left;
+      this.left = temp;
+    } else {
+      // front -> right -> back -> left
+      const temp = this.front;
+      this.front = this.left;
+      this.left = this.back;
+      this.back = this.right;
+      this.right = temp;
+    }
+  }
+
+  public z(clockwise: boolean): void {
+    if (clockwise) {
+      // up -> right -> down -> left
+      const temp = this.up;
+      this.up = this.left;
+      this.left = this.down;
+      this.down = this.right;
+      this.right = temp;
+    } else {
+      // up -> left -> down -> right
+      const temp = this.up;
+      this.up = this.right;
+      this.right = this.down;
+      this.down = this.left;
+      this.left = temp;
+    }
+  }
+
+  public F(clockwise: boolean): void {
+    this.x(clockwise);
+  }
+
+  public B(clockwise: boolean): void {
+    this.F(clockwise);
+  }
+
+  public L(clockwise: boolean): void {
+    this.x(clockwise);
+  }
+
+  public R(clockwise: boolean): void {
+    this.x(clockwise);
+  }
+
+  public U(clockwise: boolean): void {
+    this.y(clockwise);
+  }
+
+  public D(clockwise: boolean): void {
+    this.y(clockwise);
+  }
+}
+
+// Represents a single cube
 class CubeMesh extends THREE.Mesh {
-  constructor({ position, materials }: CubeMeshProps) {
+  public colors: CubeFaceColors;
+
+  constructor(
+    position: THREE.Vector3,
+    materials: THREE.MeshBasicMaterial[],
+    colors: CubeFaceColors,
+  ) {
     super(new THREE.BoxGeometry(1, 1, 1), materials);
     this.position.x = position.x;
     this.position.y = position.y;
     this.position.z = position.z;
+    this.colors = colors;
   }
 }
 
@@ -20,7 +135,7 @@ enum Axis {
   z = 'z',
 }
 
-// Creates a cubeSize x cubeSize x cubeSize cubes, where the cubes
+// Creates (cubeSize x cubeSize x cubeSize) cubes, where the cubes
 // are centered around the origin.
 function generateCubeCluster(
   cubeSize: number,
@@ -32,10 +147,18 @@ function generateCubeCluster(
   for (let z = startingPos; z <= endingPos; z += 1) {
     for (let y = startingPos; y <= endingPos; y += 1) {
       for (let x = startingPos; x <= endingPos; x += 1) {
-        const cube = new CubeMesh({
-          position: new THREE.Vector3(x, y, z),
-          materials: materials,
-        });
+        const cube = new CubeMesh(
+          new THREE.Vector3(x, y, z),
+          materials,
+          new CubeFaceColors(
+            Color.orange,
+            Color.red,
+            Color.white,
+            Color.yellow,
+            Color.blue,
+            Color.green,
+          ),
+        );
         cubes.push(cube);
       }
     }
@@ -222,6 +345,24 @@ export default class RubiksCube {
       this.scene.add(group);
 
       await this.rotateObject(group, axis, clockwise, duration);
+
+      for (const cube of cubes) {
+        if (cube instanceof CubeMesh) {
+          switch (axis) {
+            case Axis.x:
+              cube.colors.x(clockwise);
+              break;
+            case Axis.y:
+              cube.colors.y(clockwise);
+              break;
+            case Axis.z:
+              cube.colors.z(clockwise);
+              break;
+            default:
+              break;
+          }
+        }
+      }
 
       for (let i = group.children.length - 1; i >= 0; i--) {
         const child = group.children[i];

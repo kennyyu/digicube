@@ -20,6 +20,22 @@ enum Axis {
   z = 'z',
 }
 
+function generateCubeCluster(materials: THREE.MeshBasicMaterial[]): CubeMesh[] {
+  const cubes = [];
+  for (let z = -1; z < 2; z++) {
+    for (let y = -1; y < 2; y++) {
+      for (let x = -1; x < 2; x++) {
+        const cube = new CubeMesh({
+          position: new THREE.Vector3(x, y, z),
+          materials: materials,
+        });
+        cubes.push(cube);
+      }
+    }
+  }
+  return cubes;
+}
+
 export default class RubiksCube {
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
@@ -36,7 +52,7 @@ export default class RubiksCube {
     this.camera.lookAt(0, -0.33, 0);
 
     this.scene = new THREE.Scene();
-    this.scene.add(...this.generateCubeCluster());
+    this.scene.add(...generateCubeCluster(this.materials));
 
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -117,7 +133,12 @@ export default class RubiksCube {
     await this.rotate(cubes, Axis.z, clockwise, duration);
   }
 
-  private async rotate(cubes: THREE.Object3D[], axis: Axis, clockwise: boolean = false, duration: number) {
+  private async rotate(
+    cubes: THREE.Object3D[],
+    axis: Axis,
+    clockwise: boolean = false,
+    duration: number,
+  ) {
     if (!this.locked) {
       this.locked = true;
       const group = cubes.reduce((acc, cube) => acc.add(cube), new THREE.Object3D());
@@ -129,7 +150,10 @@ export default class RubiksCube {
       for (let i = group.children.length - 1; i >= 0; i--) {
         const child = group.children[i];
         this.scene.attach(child);
-        child.position.set(Math.round(child.position.x), Math.round(child.position.y), Math.round(child.position.z));
+        child.position.set(
+          Math.round(child.position.x),
+          Math.round(child.position.y),
+          Math.round(child.position.z));
       }
 
       this.scene.remove(group);
@@ -137,13 +161,20 @@ export default class RubiksCube {
     }
   }
 
-  private async rotateObject(object: THREE.Object3D, axis: Axis, clockwise: boolean, duration: number, start?: number) {
+  private async rotateObject(
+    object: THREE.Object3D,
+    axis: Axis,
+    clockwise: boolean,
+    duration: number,
+    start?: number,
+  ) {
     return new Promise<void>(async (resolve) => {
       window.requestAnimationFrame(async (timestamp) => {
         const s = start || timestamp;
         const elapsed = timestamp - s;
 
-        const radians = (clockwise ? -1 : 1) * THREE.MathUtils.degToRad(Math.min(elapsed / duration, 1) * 90);
+        const radians = (clockwise ? -1 : 1) * THREE.MathUtils.degToRad(
+          Math.min(elapsed / duration, 1) * 90);
 
         switch (axis) {
           case Axis.x:
@@ -159,7 +190,9 @@ export default class RubiksCube {
             break;
         }
 
-        return elapsed <= duration ? resolve(this.rotateObject(object, axis, clockwise, duration, s)) : resolve();
+        return elapsed <= duration
+          ? resolve(this.rotateObject(object, axis, clockwise, duration, s))
+          : resolve();
       });
     });
   }
@@ -167,21 +200,5 @@ export default class RubiksCube {
   private render() {
     window.requestAnimationFrame(this.render.bind(this));
     this.renderer.render(this.scene, this.camera);
-  }
-
-  private generateCubeCluster() {
-    const cubes = [];
-    for (let z = -1; z < 2; z++) {
-      for (let y = -1; y < 2; y++) {
-        for (let x = -1; x < 2; x++) {
-          const cube = new CubeMesh({
-            position: new THREE.Vector3(x, y, z),
-            materials: this.materials,
-          });
-          cubes.push(cube);
-        }
-      }
-    }
-    return cubes;
   }
 }

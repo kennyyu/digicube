@@ -1,25 +1,24 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useRef, useEffect, useState } from 'react';
+import RubiksCube from './RubiksCube';
+import materials from './materials';
 
 function App() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [cube, setCube] = useState<RubiksCube>();
+
+  useEffect(() => {
+    if (canvasRef.current) {
+      setCube(new RubiksCube(canvasRef.current, materials.classic, 100));
+    }
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <canvas width="200px" height="200px" ref={canvasRef} />
+      <button onClick={() => { if (cube) cube.F() }}>F</button>
+      <button onClick={() => { if (cube) cube.F(false) }}>F'</button>
+      {/** ... **/}
+    </>
   );
 }
 

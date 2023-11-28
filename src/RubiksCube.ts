@@ -77,17 +77,11 @@ class CameraView {
 }
 
 export default class RubiksCube {
-//  private camera: THREE.PerspectiveCamera;
-//  private camera2: THREE.PerspectiveCamera;
-  private scene: THREE.Scene;
-//  private renderer: THREE.Renderer;
-//  private renderer2: THREE.Renderer;
   private locked: boolean = false;
   private materials: THREE.MeshBasicMaterial[];
   private speed: number;
-
-  private cameraView: CameraView;
-  private cameraViewLeft: CameraView;
+  private scene: THREE.Scene;
+  private cameraViews: CameraView[];
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -101,85 +95,35 @@ export default class RubiksCube {
     this.scene = new THREE.Scene();
     this.scene.add(...generateCubeCluster(this.materials));
 
-    /*
-    this.camera = new THREE.PerspectiveCamera();
-    this.camera.position.set(4, 4, 4);
-    this.camera.lookAt(0, -0.33, 0);
+    this.cameraViews = [];
 
-    this.renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      canvas: canvas,
-      alpha: true,
-    });
-    this.renderer.domElement.style.width = canvas.style.width;
-    this.renderer.domElement.style.height = canvas.style.height;
-    */
-    this.cameraView = new CameraView(
+    // Main view
+    this.cameraViews.push(new CameraView(
       canvas,
       new THREE.Vector3(4, 4, 4),
-      new THREE.Vector3(0, -0.33, 0));
+      new THREE.Vector3(0, -0.33, 0)));
 
-    /*
-    this.resize();
-    this.render();
-
-    this.camera2 = new THREE.PerspectiveCamera();
-    //    this.camera2.position.set(-4, -4, -4);
-    //    this.camera2.lookAt(0, 0.66, 0);
-
-    this.camera2.position.set(-10, 0.5, 0.5);
-    this.camera2.lookAt(0, 0.5, 0.5);
-
-    this.renderer2 = new THREE.WebGLRenderer({
-      antialias: true,
-      canvas: canvas2,
-      alpha: true,
-    });
-    this.renderer2.domElement.style.width = canvas2.style.width;
-    this.renderer2.domElement.style.height = canvas2.style.height;
-    */
-
-    this.cameraViewLeft = new CameraView(
+    // Left view
+    this.cameraViews.push(new CameraView(
       canvasLeft,
       new THREE.Vector3(-10, 0.5, 0.5),
-      new THREE.Vector3(0, 0.5, 0.5));
+      new THREE.Vector3(0, 0.5, 0.5)))
 
     this.resize();
     this.render();
   }
 
   public resize() {
-    for (const camera of [this.cameraView, this.cameraViewLeft]) {
-      camera.resize();
+    for (const cameraView of this.cameraViews) {
+      cameraView.resize();
     }
-    /*
-    const canvas = this.renderer.domElement;
-    const pixelRatio = window.devicePixelRatio;
-    const width = (canvas.clientWidth * pixelRatio) | 0;
-    const height = (canvas.clientHeight * pixelRatio) | 0;
-
-    if (canvas.width !== width || canvas.height !== height) {
-      this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
-      this.camera.updateProjectionMatrix();
-      this.renderer.setSize(width, height, false);
-    }
-
-    const canvas2 = this.renderer2.domElement;
-    if (canvas2.width !== width || canvas2.height !== height) {
-      this.camera2.aspect = canvas2.clientWidth / canvas2.clientHeight;
-      this.camera2.updateProjectionMatrix();
-      this.renderer2.setSize(width, height, false);
-    }
-    */
   }
 
   private render() {
     window.requestAnimationFrame(this.render.bind(this));
-    for (const camera of [this.cameraView, this.cameraViewLeft]) {
-      camera.render(this.scene);
+    for (const cameraView of this.cameraViews) {
+      cameraView.render(this.scene);
     }
-//    this.renderer.render(this.scene, this.camera);
-//    this.renderer2.render(this.scene, this.camera2);
   }
 
   // Front

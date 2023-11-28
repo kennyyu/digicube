@@ -4,14 +4,16 @@ import materials from './materials';
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const canvasRef2 = useRef<HTMLCanvasElement>(null);
+  const canvasRefLeft = useRef<HTMLCanvasElement>(null);
+  const canvasRefBack = useRef<HTMLCanvasElement>(null);
+  const canvasRefDown = useRef<HTMLCanvasElement>(null);
   const [cube, setCube] = useState<RubiksCube>();
 
   useEffect(() => {
-    if (canvasRef.current && canvasRef2.current) {
+    if (canvasRef.current && canvasRefLeft.current) {
       setCube(new RubiksCube(
         canvasRef.current,
-        canvasRef2.current,
+        canvasRefLeft.current,
         materials.classic,
         100));
     }
@@ -23,12 +25,14 @@ function App() {
         <table>
           <tr>
             <td>
-              <canvas width="100px" height="100px" ref={canvasRef2} />
+              <canvas width="100px" height="100px" ref={canvasRefLeft} />
               <canvas width="100px" height="100px" ref={canvasRef} />
+              <canvas width="100px" height="100px" ref={canvasRefBack} />
             </td>
           </tr>
           <tr>
             <td>
+              <center>
               <button onClick={() => { if (cube) cube.F() }}>F</button>
               <button onClick={() => { if (cube) cube.F(false) }}>F'</button>
               <button onClick={() => { if (cube) cube.B() }}>B</button>
@@ -41,15 +45,18 @@ function App() {
               <button onClick={() => { if (cube) cube.L(false) }}>L'</button>
               <button onClick={() => { if (cube) cube.R() }}>R</button>
               <button onClick={() => { if (cube) cube.R(false) }}>R'</button>
+              </center>
             </td>
           </tr>
           <tr>
+            <center>
             <button onClick={() => { if (cube) cube.x() }}>x</button>
             <button onClick={() => { if (cube) cube.x(false) }}>x'</button>
             <button onClick={() => { if (cube) cube.y() }}>y</button>
             <button onClick={() => { if (cube) cube.y(false) }}>y'</button>
             <button onClick={() => { if (cube) cube.z() }}>z</button>
             <button onClick={() => { if (cube) cube.z(false) }}>z'</button>
+            </center>
           </tr>
         </table>
       </center>

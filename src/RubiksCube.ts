@@ -147,6 +147,15 @@ function generateCubeCluster(
   for (let z = startingPos; z <= endingPos; z += 1) {
     for (let y = startingPos; y <= endingPos; y += 1) {
       for (let x = startingPos; x <= endingPos; x += 1) {
+        // Don't render internal cubes
+        if (x != startingPos
+            && x != endingPos
+            && y != startingPos
+            && y != endingPos
+            && z != startingPos
+            && z != endingPos) {
+          continue;
+        }
         const cube = new CubeMesh(
           new THREE.Vector3(x, y, z),
           materials,
@@ -169,7 +178,7 @@ function generateCubeCluster(
 // Renders the scene into the provided canvas, using the camera parameters
 class CameraView {
   private camera: THREE.PerspectiveCamera;
-  private renderer: THREE.Renderer;
+  private renderer: THREE.WebGLRenderer;
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -185,6 +194,7 @@ class CameraView {
       canvas: canvas,
       alpha: true,
     });
+    this.renderer.autoClear = false;
     this.renderer.domElement.style.width = canvas.style.width;
     this.renderer.domElement.style.height = canvas.style.height;
   }
@@ -230,6 +240,8 @@ export default class RubiksCube {
     materials: THREE.MeshBasicMaterial[],
     speed: number = 1000,
   ) {
+    console.log(`creating cube size:${cubeSize}`);
+
     this.cubeSize = cubeSize;
     this.materials = materials;
     this.speed = speed;
@@ -245,9 +257,6 @@ export default class RubiksCube {
     // Main view
     this.cameraViews.push(new CameraView(
       canvas,
-      // TODO: adjust for bigger cubes
-      // new THREE.Vector3(7, 7, 7),
-      //new THREE.Vector3(4, 4, 4),
       new THREE.Vector3(cameraMainDistance, cameraMainDistance, cameraMainDistance),
       new THREE.Vector3(0, 0, 0)));
 

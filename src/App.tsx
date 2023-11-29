@@ -21,8 +21,8 @@ function App() {
           <input type="radio" value="9" name="cubeSize" /> 9x9x9
           <input type="radio" value="10" name="cubeSize" /> 10x10x10
         </div>
+        <CubeApp cubeSize={cubeSize} />
       </center>
-      <CubeApp cubeSize={cubeSize} />
     </>
   );
 }
@@ -153,61 +153,53 @@ function CubeApp(props: CubeAppProps) {
 
   return (
     <>
-      <center>
         <table>
-          <tr>
-            <td>
-              <center>
+          <tbody>
+            <tr>
+              <td>
                 <canvas width="400px" height="400px" ref={canvasRef} />
-              </center>
-            </td>
-          </tr>
-          <tr>
-            <td>
-
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <center>
+              </td>
+            </tr>
+            <tr>
+              <td>
                 <table>
-                  <tr>
-                    <td />
-                    <td>
-                      <canvas width="100px" height="100px" ref={canvasRefUp} />
-                    </td>
-                    <td />
-                    <td />
-                  </tr>
-                  <tr>
-                    <td>
-                      <canvas width="100px" height="100px" ref={canvasRefLeft} />
-                    </td>
-                    <td>
-                      <canvas width="100px" height="100px" ref={canvasRefFront} />
-                    </td>
-                    <td>
-                      <canvas width="100px" height="100px" ref={canvasRefRight} />
-                    </td>
-                    <td>
-                      <canvas width="100px" height="100px" ref={canvasRefBack} />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td />
-                    <td>
-                      <canvas width="100px" height="100px" ref={canvasRefDown} />
-                    </td>
-                    <td />
-                    <td />
-                  </tr>
+                  <tbody>
+                    <tr>
+                      <td />
+                      <td>
+                        <canvas width="100px" height="100px" ref={canvasRefUp} />
+                      </td>
+                      <td />
+                      <td />
+                    </tr>
+                    <tr>
+                      <td>
+                        <canvas width="100px" height="100px" ref={canvasRefLeft} />
+                      </td>
+                      <td>
+                        <canvas width="100px" height="100px" ref={canvasRefFront} />
+                      </td>
+                      <td>
+                        <canvas width="100px" height="100px" ref={canvasRefRight} />
+                      </td>
+                      <td>
+                        <canvas width="100px" height="100px" ref={canvasRefBack} />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td />
+                      <td>
+                        <canvas width="100px" height="100px" ref={canvasRefDown} />
+                      </td>
+                      <td />
+                      <td />
+                    </tr>
+                  </tbody>
                 </table>
-              </center>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <center>
+              </td>
+            </tr>
+            <tr>
+              <td>
                 <button onClick={() => { if (cube) cube.F() }} ref={buttonRefF}>F</button>
                 <button onClick={() => { if (cube) cube.F(false) }} ref={buttonRefFinv}>F'</button>
                 <button onClick={() => { if (cube) cube.B() }} ref={buttonRefB}>B</button>
@@ -220,21 +212,18 @@ function CubeApp(props: CubeAppProps) {
                 <button onClick={() => { if (cube) cube.L(false) }} ref={buttonRefLinv}>L'</button>
                 <button onClick={() => { if (cube) cube.R() }} ref={buttonRefR}>R</button>
                 <button onClick={() => { if (cube) cube.R(false) }} ref={buttonRefRinv}>R'</button>
-              </center>
-            </td>
-          </tr>
-          <tr>
-            <center>
+              </td>
+            </tr>
+            <tr>
               <button onClick={() => { if (cube) cube.x() }} ref={buttonRefx}>x</button>
               <button onClick={() => { if (cube) cube.x(false) }} ref={buttonRefxinv}>x'</button>
               <button onClick={() => { if (cube) cube.y() }} ref={buttonRefy}>y</button>
               <button onClick={() => { if (cube) cube.y(false) }} ref={buttonRefyinv}>y'</button>
               <button onClick={() => { if (cube) cube.z() }} ref={buttonRefz}>z</button>
               <button onClick={() => { if (cube) cube.z(false) }} ref={buttonRefzinv}>z'</button>
-            </center>
-          </tr>
+            </tr>
+          </tbody>
         </table>
-      </center>
     </>
   );
 }

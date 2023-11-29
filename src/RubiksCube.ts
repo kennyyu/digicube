@@ -190,6 +190,8 @@ class CameraView {
   }
 
   public resize(): void {
+    // TODO: figure out how to make it work on mobile screen
+    /*
     const canvas = this.renderer.domElement;
     const pixelRatio = window.devicePixelRatio;
     const width = (canvas.clientWidth * pixelRatio) | 0;
@@ -200,6 +202,7 @@ class CameraView {
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(width, height, false);
     }
+    */
   }
 
   public render(scene: THREE.Scene): void {
@@ -218,9 +221,12 @@ export default class RubiksCube {
   constructor(
     cubeSize: number,
     canvas: HTMLCanvasElement,
-    canvasLeft: HTMLCanvasElement,
+    canvasFront: HTMLCanvasElement,
     canvasBack: HTMLCanvasElement,
+    canvasUp: HTMLCanvasElement,
     canvasDown: HTMLCanvasElement,
+    canvasRight: HTMLCanvasElement,
+    canvasLeft: HTMLCanvasElement,
     materials: THREE.MeshBasicMaterial[],
     speed: number = 1000,
   ) {
@@ -233,31 +239,57 @@ export default class RubiksCube {
 
     this.cameraViews = [];
 
+
+    const cameraMainDistance = cubeSize * 1.2;
+
     // Main view
     this.cameraViews.push(new CameraView(
       canvas,
       // TODO: adjust for bigger cubes
       // new THREE.Vector3(7, 7, 7),
-      new THREE.Vector3(4, 4, 4),
-      new THREE.Vector3(0, -0.33, 0)));
+      //new THREE.Vector3(4, 4, 4),
+      new THREE.Vector3(cameraMainDistance, cameraMainDistance, cameraMainDistance),
+      new THREE.Vector3(0, 0, 0)));
 
-    // Left view
+    // Camera distance for the face views. It needs to be scaled up in order
+    // to fit the entire camera within view.
+    const cameraFaceDistance = cubeSize * 1.57;
+
+    // Front view
     this.cameraViews.push(new CameraView(
-      canvasLeft,
-      new THREE.Vector3(-10, 0.5, 0.5),
-      new THREE.Vector3(0, 0.5, 0.5)))
+      canvasFront,
+      new THREE.Vector3(0, 0, cameraFaceDistance),
+      new THREE.Vector3(0, 0, 0)));
 
     // Back view
     this.cameraViews.push(new CameraView(
       canvasBack,
-      new THREE.Vector3(0.5, 0.5, -10),
-      new THREE.Vector3(0.5, 0.5, 0)))
+      new THREE.Vector3(0, 0, -cameraFaceDistance),
+      new THREE.Vector3(0, 0, 0)));
+
+    // Up view
+    this.cameraViews.push(new CameraView(
+      canvasUp,
+      new THREE.Vector3(0, cameraFaceDistance, 0),
+      new THREE.Vector3(0, 0, 0)));
 
     // Down view
     this.cameraViews.push(new CameraView(
       canvasDown,
-      new THREE.Vector3(0.5, -10, 0.5),
-      new THREE.Vector3(0.5, 0, 0.5)))
+      new THREE.Vector3(0, -cameraFaceDistance, 0),
+      new THREE.Vector3(0, 0, 0)));
+
+    // Right view
+    this.cameraViews.push(new CameraView(
+      canvasRight,
+      new THREE.Vector3(cameraFaceDistance, 0, 0),
+      new THREE.Vector3(0, 0, 0)));
+
+    // Left view
+    this.cameraViews.push(new CameraView(
+      canvasLeft,
+      new THREE.Vector3(-cameraFaceDistance, 0, 0),
+      new THREE.Vector3(0, 0, 0)));
 
     this.resize();
     this.render();

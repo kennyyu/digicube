@@ -32,15 +32,18 @@ type CubeAppProps = {
 };
 
 function CubeApp(props: CubeAppProps) {
+  // Main canvas to display the 3d cube
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Canvas for each face of the cube
   const canvasRefUp = useRef<HTMLCanvasElement>(null);
   const canvasRefDown = useRef<HTMLCanvasElement>(null);
   const canvasRefFront = useRef<HTMLCanvasElement>(null);
   const canvasRefBack = useRef<HTMLCanvasElement>(null);
   const canvasRefRight = useRef<HTMLCanvasElement>(null);
   const canvasRefLeft = useRef<HTMLCanvasElement>(null);
-  const [cube, setCube] = useState<RubiksCube>();
 
+  // Buttons to rotate the cube
   const buttonRefF = useRef<HTMLButtonElement>(null);
   const buttonRefB = useRef<HTMLButtonElement>(null);
   const buttonRefU = useRef<HTMLButtonElement>(null);
@@ -59,6 +62,9 @@ function CubeApp(props: CubeAppProps) {
   const buttonRefxinv = useRef<HTMLButtonElement>(null);
   const buttonRefyinv = useRef<HTMLButtonElement>(null);
   const buttonRefzinv = useRef<HTMLButtonElement>(null);
+
+  // State to store the current cube
+  const [cube, setCube] = useState<RubiksCube>();
 
   useEffect(() => {
     if (canvasRef.current

@@ -2,12 +2,41 @@ import React, { useRef, useEffect, useState } from 'react';
 import RubiksCube from './RubiksCube';
 import materials from './materials';
 
+function App() {
+  const [cubeSize, setCubeSize] = useState(3);
+  const setCubeSizeWrapper = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setCubeSize(parseInt(event.target.value));
+  }
+
+  return (
+    <>
+      <center>
+        <div onChange={setCubeSizeWrapper}>
+          <input type="radio" value="3" name="cubeSize" defaultChecked /> 3x3x3
+          <input type="radio" value="4" name="cubeSize" /> 4x4x4
+          <input type="radio" value="5" name="cubeSize" /> 5x5x5
+          <input type="radio" value="6" name="cubeSize" /> 6x6x6
+          <input type="radio" value="7" name="cubeSize" /> 7x7x7
+          <input type="radio" value="8" name="cubeSize" /> 8x8x8
+          <input type="radio" value="9" name="cubeSize" /> 9x9x9
+          <input type="radio" value="10" name="cubeSize" /> 10x10x10
+        </div>
+      </center>
+      <CubeApp cubeSize={cubeSize} />
+   </>
+  );
+}
+
+type CubeAppProps = {
+  cubeSize: number;
+};
+
 // TODO: add button to allow changing cube size
 // Add buttons to turn new faces
 // Add color type
 // Add rotations on the type
 // Layout the faces together
-function App() {
+function CubeApp(props: CubeAppProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvasRefUp = useRef<HTMLCanvasElement>(null);
   const canvasRefDown = useRef<HTMLCanvasElement>(null);
@@ -16,10 +45,6 @@ function App() {
   const canvasRefRight = useRef<HTMLCanvasElement>(null);
   const canvasRefLeft = useRef<HTMLCanvasElement>(null);
   const [cube, setCube] = useState<RubiksCube>();
-  const [cubeSize, setCubeSize] = useState(3);
-  const setCubeSizeWrapper = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setCubeSize(parseInt(event.target.value));
-  }
 
   useEffect(() => {
     if (canvasRef.current
@@ -31,7 +56,7 @@ function App() {
       && canvasRefLeft.current
     ) {
       setCube(new RubiksCube(
-        cubeSize,
+        props.cubeSize,
         canvasRef.current,
         canvasRefFront.current,
         canvasRefBack.current,
@@ -43,26 +68,12 @@ function App() {
         100,
       ));
     }
-  }, [cubeSize]);
+  }, [props]);
 
   return (
     <>
       <center>
         <table>
-          <tr>
-            <center>
-              <div onChange={setCubeSizeWrapper}>
-                <input type="radio" value="3" name="cubeSize" defaultChecked /> 3x3x3
-                <input type="radio" value="4" name="cubeSize" /> 4x4x4
-                <input type="radio" value="5" name="cubeSize" /> 5x5x5
-                <input type="radio" value="6" name="cubeSize" /> 6x6x6
-                <input type="radio" value="7" name="cubeSize" /> 7x7x7
-                <input type="radio" value="8" name="cubeSize" /> 8x8x8
-                <input type="radio" value="9" name="cubeSize" /> 9x9x9
-                <input type="radio" value="10" name="cubeSize" /> 10x10x10
-              </div>
-            </center>
-          </tr>
           <tr>
             <td>
               <center>

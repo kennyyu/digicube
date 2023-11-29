@@ -148,12 +148,12 @@ function generateCubeCluster(
     for (let y = startingPos; y <= endingPos; y += 1) {
       for (let x = startingPos; x <= endingPos; x += 1) {
         // Don't render internal cubes
-        if (x != startingPos
-            && x != endingPos
-            && y != startingPos
-            && y != endingPos
-            && z != startingPos
-            && z != endingPos) {
+        if (x !== startingPos
+            && x !== endingPos
+            && y !== startingPos
+            && y !== endingPos
+            && z !== startingPos
+            && z !== endingPos) {
           continue;
         }
         const cube = new CubeMesh(
@@ -226,6 +226,7 @@ export default class RubiksCube {
   private speed: number;
   private cubeSize: number;
   private scene: THREE.Scene;
+  private cameraMainView: CameraView;
   private cameraViews: CameraView[];
 
   constructor(
@@ -251,14 +252,20 @@ export default class RubiksCube {
 
     this.cameraViews = [];
 
-
     const cameraMainDistance = cubeSize * 1.2;
 
+    this.cameraMainView = new CameraView(
+      canvas,
+      new THREE.Vector3(cameraMainDistance, cameraMainDistance, cameraMainDistance),
+      new THREE.Vector3(0, 0, 0));
+
+    /*
     // Main view
     this.cameraViews.push(new CameraView(
       canvas,
       new THREE.Vector3(cameraMainDistance, cameraMainDistance, cameraMainDistance),
       new THREE.Vector3(0, 0, 0)));
+    */
 
     // Camera distance for the face views. It needs to be scaled up in order
     // to fit the entire camera within view.
@@ -310,12 +317,32 @@ export default class RubiksCube {
     }
   }
 
+  private renderMain() {
+    window.requestAnimationFrame(this.renderMain.bind(this));
+    this.cameraMainView.render(this.scene);
+  }
+
+  private renderFaces() {
+    for (const cameraView of this.cameraViews) {
+      cameraView.render(this.scene);
+    }
+  }
+
+  private render() {
+    this.renderMain();
+    this.renderFaces();
+    // Initial load may not have loaded assets yet
+    setTimeout(this.renderFaces.bind(this), 200);
+  }
+
+  /*
   private render() {
     window.requestAnimationFrame(this.render.bind(this));
     for (const cameraView of this.cameraViews) {
       cameraView.render(this.scene);
     }
   }
+  */
 
   // Front
   public async F(clockwise: boolean = true, duration: number = this.speed) {
@@ -425,6 +452,8 @@ export default class RubiksCube {
 
       this.scene.remove(group);
       this.locked = false;
+
+      this.renderFaces();
     }
   }
 

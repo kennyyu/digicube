@@ -13,6 +13,10 @@ function App() {
   const canvasRefBack = useRef<HTMLCanvasElement>(null);
   const canvasRefDown = useRef<HTMLCanvasElement>(null);
   const [cube, setCube] = useState<RubiksCube>();
+  const [cubeSize, setCubeSize] = useState(3);
+  const setCubeSizeWrapper = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setCubeSize(parseInt(event.target.value));
+  }
 
   useEffect(() => {
     if (canvasRef.current
@@ -20,8 +24,7 @@ function App() {
       && canvasRefBack.current
       && canvasRefDown.current) {
       setCube(new RubiksCube(
-//        5,
-        3,
+        cubeSize,
         canvasRef.current,
         canvasRefLeft.current,
         canvasRefBack.current,
@@ -30,12 +33,21 @@ function App() {
         100,
       ));
     }
-  }, []);
+  }, [cubeSize]);
 
   return (
     <>
       <center>
         <table>
+          <tr>
+            <center>
+            <div onChange={setCubeSizeWrapper}>
+              <input type="radio" value="3" name="cubeSize" defaultChecked /> 3x3x3
+              <input type="radio" value="4" name="cubeSize" /> 4x4x4
+              <input type="radio" value="5" name="cubeSize" /> 5x5x5
+            </div>
+            </center>
+          </tr>
           <tr>
             <td>
               <center>

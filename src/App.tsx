@@ -91,58 +91,58 @@ function CubeApp(props: CubeAppProps) {
       // TODO: wasdxf, jkl controls
       const onKeyPressed = (event: KeyboardEvent) => {
         switch (event.key) {
-          case "f":
+          case "s":
             buttonRefF.current?.click();
             break;
-          case "b":
+          case "f":
             buttonRefB.current?.click();
             break;
-          case "u":
+          case "w":
             buttonRefU.current?.click();
             break;
-          case "d":
+          case "x":
             buttonRefD.current?.click();
             break;
-          case "l":
+          case "a":
             buttonRefL.current?.click();
             break;
-          case "r":
+          case "d":
             buttonRefR.current?.click();
             break;
-          case "F":
+          case "S":
             buttonRefFinv.current?.click();
             break;
-          case "B":
+          case "F":
             buttonRefBinv.current?.click();
             break;
-          case "U":
+          case "W":
             buttonRefUinv.current?.click();
             break;
-          case "D":
+          case "X":
             buttonRefDinv.current?.click();
             break;
-          case "L":
+          case "A":
             buttonRefLinv.current?.click();
             break;
-          case "R":
+          case "D":
             buttonRefRinv.current?.click();
             break;
-          case "x":
+          case "l":
             buttonRefx.current?.click();
             break;
-          case "y":
+          case "k":
             buttonRefy.current?.click();
             break;
-          case "z":
+          case "j":
             buttonRefz.current?.click();
             break;
-          case "X":
+          case "L":
             buttonRefxinv.current?.click();
             break;
-          case "Y":
+          case "K":
             buttonRefyinv.current?.click();
             break;
-          case "Z":
+          case "J":
             buttonRefzinv.current?.click();
             break;
         }
@@ -168,6 +168,8 @@ function CubeApp(props: CubeAppProps) {
                     <td />
                     <td>
                       <canvas width="100px" height="100px" ref={canvasRefUp} />
+                      <br />
+                      w
                     </td>
                     <td />
                     <td />
@@ -175,21 +177,31 @@ function CubeApp(props: CubeAppProps) {
                   <tr>
                     <td>
                       <canvas width="100px" height="100px" ref={canvasRefLeft} />
+                      <br />
+                      a
                     </td>
                     <td>
                       <canvas width="100px" height="100px" ref={canvasRefFront} />
+                      <br />
+                      s
                     </td>
                     <td>
                       <canvas width="100px" height="100px" ref={canvasRefRight} />
+                      <br />
+                      d
                     </td>
                     <td>
                       <canvas width="100px" height="100px" ref={canvasRefBack} />
+                      <br />
+                      f
                     </td>
                   </tr>
                   <tr>
                     <td />
                     <td>
                       <canvas width="100px" height="100px" ref={canvasRefDown} />
+                      <br />
+                      x
                     </td>
                     <td />
                     <td />
@@ -215,12 +227,14 @@ function CubeApp(props: CubeAppProps) {
             </td>
           </tr>
           <tr>
-            <button onClick={() => { if (cube) cube.x() }} ref={buttonRefx}>x</button>
-            <button onClick={() => { if (cube) cube.x(false) }} ref={buttonRefxinv}>x'</button>
-            <button onClick={() => { if (cube) cube.y() }} ref={buttonRefy}>y</button>
-            <button onClick={() => { if (cube) cube.y(false) }} ref={buttonRefyinv}>y'</button>
-            <button onClick={() => { if (cube) cube.z() }} ref={buttonRefz}>z</button>
-            <button onClick={() => { if (cube) cube.z(false) }} ref={buttonRefzinv}>z'</button>
+            <td>
+              <button onClick={() => { if (cube) cube.x() }} ref={buttonRefx}>x</button>
+              <button onClick={() => { if (cube) cube.x(false) }} ref={buttonRefxinv}>x'</button>
+              <button onClick={() => { if (cube) cube.y() }} ref={buttonRefy}>y</button>
+              <button onClick={() => { if (cube) cube.y(false) }} ref={buttonRefyinv}>y'</button>
+              <button onClick={() => { if (cube) cube.z() }} ref={buttonRefz}>z</button>
+              <button onClick={() => { if (cube) cube.z(false) }} ref={buttonRefzinv}>z'</button>
+            </td>
           </tr>
         </tbody>
       </table>

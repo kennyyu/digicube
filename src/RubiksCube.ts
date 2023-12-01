@@ -147,6 +147,25 @@ enum CubeFaceTurn {
   L_inv = "L_inv",
 }
 
+enum CubeMove3x3 {
+  F,
+  F_inv,
+  //...
+}
+
+enum CubeMove4x4 {
+
+}
+
+// function to map 3x3 move into CubeMove2
+// function getCubeMoveFrom3x3(move: CubeMove3x3): CubeMove {
+//
+// }
+
+// Cube3x3 has a Cube
+// - has one method doMove(move: CubeMove3x3): void
+// - delegates to inner Cube: this.cube.doMove(getCubeMoveFrom3x3(move))
+
 // TODO: make layers a list
 // Full cube rotation is == rotate all layers
 // Represents all possible moves on a cube
@@ -241,17 +260,6 @@ function getCubeFaceTurnBasePosition(
         coord: -1,
       };
   }
-}
-
-function getCubeMovePosition(cubeMove: CubeMove): CubeMovePosition {
-  const basePosition = getCubeFaceTurnBasePosition(cubeMove.cubeFaceTurn);
-  const initialCoord = (cubeMove.cubeSize - 1) / 2;
-  const layerCoord = basePosition.coord *
-    (initialCoord - cubeMove.layerNum);
-  return {
-    ...basePosition,
-    coord: layerCoord,
-  };
 }
 
 // F is F0
@@ -481,48 +489,6 @@ export default class RubiksCube {
   }
   */
 
-  // Front
-  public async F2(clockwise: boolean = true, duration: number = this.speed) {
-    // TODO: adjust for bigger cubes
-    //const cubes = this.scene.children.filter(
-    // (node) => node instanceof CubeMesh && node.position.z === 2);
-    /*
-    const cubes = this.scene.children.filter(
-      (node) => node instanceof CubeMesh && node.position.z === 1);
-    await this.rotate(cubes, Axis.z, clockwise, duration);
-    */
-    const cubeMovePosition = getCubeMovePosition({
-      cubeSize: this.cubeSize,
-      cubeFaceTurn: CubeFaceTurn.F,
-      layerNum: 0,
-    });
-
-    const cubes = this.scene.children.filter(
-      (node) => {
-        if (!(node instanceof CubeMesh)) {
-          return false;
-        }
-        switch (cubeMovePosition.axis) {
-          case Axis.x:
-            return node.position.x == cubeMovePosition.coord;
-          case Axis.y:
-            return node.position.y == cubeMovePosition.coord;
-          case Axis.z:
-            return node.position.z == cubeMovePosition.coord;
-        }
-      });
-    await this.rotate(cubes, cubeMovePosition.axis, cubeMovePosition.clockwise, duration);
-  }
-
-  public async F(clockwise: boolean = true, duration: number = this.speed) {
-    await this.doMove({
-      axis: Axis.z,
-      clockwise: clockwise,
-      cubeSize: this.cubeSize,
-      layers: [0],
-    });
-  }
-
   private async doMove(cubeMove: CubeMove2, duration: number = this.speed) {
     const coords = getCubeCoords(cubeMove.cubeSize, cubeMove.layers);
     const cubes = this.scene.children.filter(
@@ -542,11 +508,24 @@ export default class RubiksCube {
     await this.rotate(cubes, cubeMove.axis, cubeMove.clockwise, duration);
   }
 
+  // Front
+  public async F(clockwise: boolean = true, duration: number = this.speed) {
+    await this.doMove({
+      axis: Axis.z,
+      clockwise: clockwise,
+      cubeSize: this.cubeSize,
+      layers: [0],
+    });
+  }
+
   // Back
   public async B(clockwise: boolean = true, duration: number = this.speed) {
-    const cubes = this.scene.children.filter(
-      (node) => node instanceof CubeMesh && node.position.z === -1);
-    await this.rotate(cubes, Axis.z, clockwise, duration);
+    await this.doMove({
+      axis: Axis.z,
+      clockwise: clockwise,
+      cubeSize: this.cubeSize,
+      layers: [this.cubeSize - 1],
+    });
   }
 
   // Up
@@ -579,25 +558,26 @@ export default class RubiksCube {
 
   // Cube on x axis
   public async x(clockwise: boolean = true, duration: number = this.speed) {
-    const cubes = this.scene.children.filter(
-      (node) => node instanceof CubeMesh);
-    await this.rotate(cubes, Axis.x, clockwise, duration);
+    await this.doMove({
+      axis: Axis.x,
+      clockwise: clockwise,
+      cubeSize: this.cubeSize,
+      layers: Array.from(Array(this.cubeSize).keys()),
+    });
   }
+
 
   // Cube on y axis
   public async y(clockwise: boolean = true, duration: number = this.speed) {
-    const cubes = this.scene.children.filter(
-      (node) => node instanceof CubeMesh);
-    await this.rotate(cubes, Axis.y, clockwise, duration);
+    await this.doMove({
+      axis: Axis.y,
+      clockwise: clockwise,
+      cubeSize: this.cubeSize,
+      layers: Array.from(Array(this.cubeSize).keys()),
+    });
   }
 
   // Cube on z axis
-  public async z2(clockwise: boolean = true, duration: number = this.speed) {
-    const cubes = this.scene.children.filter(
-      (node) => node instanceof CubeMesh);
-    await this.rotate(cubes, Axis.z, clockwise, duration);
-  }
-
   public async z(clockwise: boolean = true, duration: number = this.speed) {
     await this.doMove({
       axis: Axis.z,

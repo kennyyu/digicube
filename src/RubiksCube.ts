@@ -86,30 +86,6 @@ class CubeFaceColors {
       this.left = temp;
     }
   }
-
-  public F(clockwise: boolean): void {
-    this.x(clockwise);
-  }
-
-  public B(clockwise: boolean): void {
-    this.F(clockwise);
-  }
-
-  public L(clockwise: boolean): void {
-    this.x(clockwise);
-  }
-
-  public R(clockwise: boolean): void {
-    this.x(clockwise);
-  }
-
-  public U(clockwise: boolean): void {
-    this.y(clockwise);
-  }
-
-  public D(clockwise: boolean): void {
-    this.y(clockwise);
-  }
 }
 
 // Represents a single cube
@@ -135,6 +111,166 @@ enum Axis {
   z = 'z',
 }
 
+enum CubeMove3x3 {
+  x = "x",
+  x_inv = "x_inv",
+  y = "y",
+  y_inv = "y_inv",
+  z = "z",
+  z_inv = "z_inv",
+  F = "F",
+  F_inv = "F_inv",
+  B = "B",
+  B_inv = "B_inv",
+  U = "U",
+  U_inv = "U_inv",
+  D = "D",
+  D_inv = "D_inv",
+  L = "L",
+  L_inv = "L_inv",
+  R = "R",
+  R_inv = "R_inv",
+}
+
+enum CubeFaceTurn {
+  F = "F",
+  F_inv = "F_inv",
+  B = "B",
+  B_inv = "B_inv",
+  U = "U",
+  U_inv = "U_inv",
+  D = "D",
+  D_inv = "D_inv",
+  R = "R",
+  R_inv = "R_inv",
+  L = "L",
+  L_inv = "L_inv",
+}
+
+// Represents a turn of a single layer on the cube
+type CubeMove = {
+  cubeSize: number;
+  cubeFaceTurn: CubeFaceTurn;
+  layerNum: number;
+};
+
+// Returns the positions of cubes that need to be rotated
+// TODO: allow specifying rotation of cube
+type CubeMovePosition = {
+  axis: Axis;
+  clockwise: boolean;
+  coord: number;
+};
+
+// TODO: don't need B. It is a special case of F.
+function getCubeFaceTurnBasePosition(
+  cubeFaceTurn: CubeFaceTurn,
+): CubeMovePosition {
+  switch (cubeFaceTurn) {
+    case CubeFaceTurn.F:
+      return {
+        axis: Axis.z,
+        clockwise: true,
+        coord: 1,
+      };
+    case CubeFaceTurn.F_inv:
+      return {
+        axis: Axis.z,
+        clockwise: false,
+        coord: 1,
+      };
+    case CubeFaceTurn.B:
+      return {
+        axis: Axis.z,
+        clockwise: true,
+        coord: -1,
+      };
+    case CubeFaceTurn.B_inv:
+      return {
+        axis: Axis.z,
+        clockwise: false,
+        coord: -1,
+      };
+    case CubeFaceTurn.U:
+      return {
+        axis: Axis.y,
+        clockwise: true,
+        coord: 1,
+      };
+    case CubeFaceTurn.U_inv:
+      return {
+        axis: Axis.y,
+        clockwise: false,
+        coord: 1,
+      };
+    case CubeFaceTurn.D:
+      return {
+        axis: Axis.y,
+        clockwise: true,
+        coord: -1,
+      };
+    case CubeFaceTurn.D_inv:
+      return {
+        axis: Axis.y,
+        clockwise: false,
+        coord: -1,
+      };
+    case CubeFaceTurn.R:
+      return {
+        axis: Axis.x,
+        clockwise: true,
+        coord: 1,
+      };
+    case CubeFaceTurn.R_inv:
+      return {
+        axis: Axis.x,
+        clockwise: false,
+        coord: 1,
+      };
+    case CubeFaceTurn.L:
+      return {
+        axis: Axis.x,
+        clockwise: true,
+        coord: -1,
+      };
+    case CubeFaceTurn.L_inv:
+      return {
+        axis: Axis.x,
+        clockwise: false,
+        coord: -1,
+      };
+  }
+}
+
+function getCubeMovePosition(cubeMove: CubeMove): CubeMovePosition {
+  const basePosition = getCubeFaceTurnBasePosition(cubeMove.cubeFaceTurn);
+  const initialCoord = (cubeMove.cubeSize - 1) / 2;
+  const layerCoord = basePosition.coord *
+    (initialCoord - cubeMove.layerNum);
+  return {
+    ...basePosition,
+    coord: layerCoord,
+  };
+}
+
+// F is F0
+// 3x3
+// F: z == 1, B: z == -1
+// 4x4
+// F: z == 1.5, F1 = 0.5, B1 = -0.5, B = -1.5
+// 5x5
+// F: z == 2, F1 == 1, B1 == -1, B == -2
+// 6x6
+// F: z == 2.5, F1 == 1.5, F2 == 0.5, B2 == -0.5, F1 == -1.5, F6 == -2.5
+
+// Need a map of (Cube Size, Num) => offset
+// (5x5, 2) => 1
+// (6x6, 1) => 2.5; (6x6, 2) => 1.5, (6x6, 3) => 0.5
+// Need a map of symbol to sign
+// F => +1; B => -1
+// Combine it all together (cube size, move) -> (axis, position):
+// (6x6, F2) => letter_lookup(F) * num_lookup(2) => index
+
 // Creates (cubeSize x cubeSize x cubeSize) cubes, where the cubes
 // are centered around the origin.
 function generateCubeCluster(
@@ -149,11 +285,11 @@ function generateCubeCluster(
       for (let x = startingPos; x <= endingPos; x += 1) {
         // Don't render internal cubes
         if (x !== startingPos
-            && x !== endingPos
-            && y !== startingPos
-            && y !== endingPos
-            && z !== startingPos
-            && z !== endingPos) {
+          && x !== endingPos
+          && y !== startingPos
+          && y !== endingPos
+          && z !== startingPos
+          && z !== endingPos) {
           continue;
         }
         const cube = new CubeMesh(
@@ -349,9 +485,32 @@ export default class RubiksCube {
     // TODO: adjust for bigger cubes
     //const cubes = this.scene.children.filter(
     // (node) => node instanceof CubeMesh && node.position.z === 2);
+    /*
     const cubes = this.scene.children.filter(
       (node) => node instanceof CubeMesh && node.position.z === 1);
     await this.rotate(cubes, Axis.z, clockwise, duration);
+    */
+    const cubeMovePosition = getCubeMovePosition({
+      cubeSize: this.cubeSize,
+      cubeFaceTurn: CubeFaceTurn.F,
+      layerNum: 0,
+    });
+
+    const cubes = this.scene.children.filter(
+      (node) => {
+        if (!(node instanceof CubeMesh)) {
+          return false;
+        }
+        switch (cubeMovePosition.axis) {
+          case Axis.x:
+            return node.position.x == cubeMovePosition.coord;
+          case Axis.y:
+            return node.position.y == cubeMovePosition.coord;
+          case Axis.z:
+            return node.position.z == cubeMovePosition.coord;
+        }
+      });
+    await this.rotate(cubes, cubeMovePosition.axis, cubeMovePosition.clockwise, duration);
   }
 
   // Back
@@ -391,7 +550,8 @@ export default class RubiksCube {
 
   // Cube on x axis
   public async x(clockwise: boolean = true, duration: number = this.speed) {
-    const cubes = this.scene.children.filter((node) => node instanceof CubeMesh);
+    const cubes = this.scene.children.filter(
+      (node) => node instanceof CubeMesh);
     await this.rotate(cubes, Axis.x, clockwise, duration);
   }
 
@@ -417,7 +577,8 @@ export default class RubiksCube {
   ) {
     if (!this.locked) {
       this.locked = true;
-      const group = cubes.reduce((acc, cube) => acc.add(cube), new THREE.Object3D());
+      const group = cubes.reduce(
+        (acc, cube) => acc.add(cube), new THREE.Object3D());
 
       this.scene.add(group);
 
@@ -441,13 +602,17 @@ export default class RubiksCube {
         }
       }
 
+      // Even-sized cubes will have individual cubes at 0.5 coordinates.
+      // We need to round to the nearest half.
+      const roundToNearestHalf = (x: number) => Math.round(2 * x) / 2;
+
       for (let i = group.children.length - 1; i >= 0; i--) {
         const child = group.children[i];
         this.scene.attach(child);
         child.position.set(
-          Math.round(child.position.x),
-          Math.round(child.position.y),
-          Math.round(child.position.z));
+          roundToNearestHalf(child.position.x),
+          roundToNearestHalf(child.position.y),
+          roundToNearestHalf(child.position.z));
       }
 
       this.scene.remove(group);

@@ -111,27 +111,6 @@ enum Axis {
   z = 'z',
 }
 
-enum CubeMove3x3 {
-  x = "x",
-  x_inv = "x_inv",
-  y = "y",
-  y_inv = "y_inv",
-  z = "z",
-  z_inv = "z_inv",
-  F = "F",
-  F_inv = "F_inv",
-  B = "B",
-  B_inv = "B_inv",
-  U = "U",
-  U_inv = "U_inv",
-  D = "D",
-  D_inv = "D_inv",
-  L = "L",
-  L_inv = "L_inv",
-  R = "R",
-  R_inv = "R_inv",
-}
-
 enum CubeFaceTurn {
   F = "F",
   F_inv = "F_inv",
@@ -147,7 +126,9 @@ enum CubeFaceTurn {
   L_inv = "L_inv",
 }
 
-// Represents a turn of a single layer on the cube
+// TODO: make layers a list
+// Full cube rotation is == rotate all layers
+// Represents all possible moves on a cube
 type CubeMove = {
   cubeSize: number;
   cubeFaceTurn: CubeFaceTurn;
@@ -155,7 +136,6 @@ type CubeMove = {
 };
 
 // Returns the positions of cubes that need to be rotated
-// TODO: allow specifying rotation of cube
 type CubeMovePosition = {
   axis: Axis;
   clockwise: boolean;

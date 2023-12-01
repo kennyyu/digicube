@@ -111,6 +111,27 @@ enum Axis {
   z = 'z',
 }
 
+// TODO: direction
+// All move types -- this is exposed externally (Cube3x3 delegates to Cube)
+// F0, F1, F2, ... x, y, z
+// =>
+// map into primitives -- this is used internally (Cube)
+// F0 => (7x7, x, clockwise, [0])
+// x => (7x7, x, clockwise, [0,1,2,3,4,5,6])
+type CubeMove2 = {
+  axis: Axis;
+  clockwise: boolean;
+  cubeSize: number;
+  // Layers always start from the positive axis direction.
+  // X, layer 0 == R. Y, layer 0 == U. Z, layer 0 == F
+  layers: number[];
+};
+
+function getCubeCoords(cubeSize: number, layers: number[]): number[] {
+  const initialCoord = (cubeSize - 1) / 2;
+  return layers.map((x) => initialCoord - x);
+}
+
 enum CubeFaceTurn {
   F = "F",
   F_inv = "F_inv",
@@ -461,7 +482,7 @@ export default class RubiksCube {
   */
 
   // Front
-  public async F(clockwise: boolean = true, duration: number = this.speed) {
+  public async F2(clockwise: boolean = true, duration: number = this.speed) {
     // TODO: adjust for bigger cubes
     //const cubes = this.scene.children.filter(
     // (node) => node instanceof CubeMesh && node.position.z === 2);
@@ -491,6 +512,34 @@ export default class RubiksCube {
         }
       });
     await this.rotate(cubes, cubeMovePosition.axis, cubeMovePosition.clockwise, duration);
+  }
+
+  public async F(clockwise: boolean = true, duration: number = this.speed) {
+    await this.doMove({
+      axis: Axis.z,
+      clockwise: clockwise,
+      cubeSize: this.cubeSize,
+      layers: [0],
+    });
+  }
+
+  private async doMove(cubeMove: CubeMove2, duration: number = this.speed) {
+    const coords = getCubeCoords(cubeMove.cubeSize, cubeMove.layers);
+    const cubes = this.scene.children.filter(
+      (node) => {
+        if (!(node instanceof CubeMesh)) {
+          return false;
+        }
+        switch (cubeMove.axis) {
+          case Axis.x:
+            return coords.includes(node.position.x);
+          case Axis.y:
+            return coords.includes(node.position.y);
+          case Axis.z:
+            return coords.includes(node.position.z);
+        }
+      });
+    await this.rotate(cubes, cubeMove.axis, cubeMove.clockwise, duration);
   }
 
   // Back
@@ -543,10 +592,19 @@ export default class RubiksCube {
   }
 
   // Cube on z axis
-  public async z(clockwise: boolean = true, duration: number = this.speed) {
+  public async z2(clockwise: boolean = true, duration: number = this.speed) {
     const cubes = this.scene.children.filter(
       (node) => node instanceof CubeMesh);
     await this.rotate(cubes, Axis.z, clockwise, duration);
+  }
+
+  public async z(clockwise: boolean = true, duration: number = this.speed) {
+    await this.doMove({
+      axis: Axis.z,
+      clockwise: clockwise,
+      cubeSize: this.cubeSize,
+      layers: Array.from(Array(this.cubeSize).keys()),
+    });
   }
 
   private async rotate(

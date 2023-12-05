@@ -12,6 +12,7 @@ function App() {
     <>
       <center>
         <div onChange={setCubeSizeWrapper}>
+          <input type="radio" value="2" name="cubeSize" /> 2x2x2
           <input type="radio" value="3" name="cubeSize" defaultChecked /> 3x3x3
           <input type="radio" value="4" name="cubeSize" /> 4x4x4
           <input type="radio" value="5" name="cubeSize" /> 5x5x5

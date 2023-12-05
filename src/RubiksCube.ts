@@ -118,7 +118,7 @@ enum Axis {
 // map into primitives -- this is used internally (Cube)
 // F0 => (7x7, x, clockwise, [0])
 // x => (7x7, x, clockwise, [0,1,2,3,4,5,6])
-type CubeMove2 = {
+type CubeMove = {
   axis: Axis;
   clockwise: boolean;
   cubeSize: number;
@@ -157,7 +157,7 @@ enum CubeMove4x4 {
 
 }
 
-// function to map 3x3 move into CubeMove2
+// function to map 3x3 move into CubeMove
 // function getCubeMoveFrom3x3(move: CubeMove3x3): CubeMove {
 //
 // }
@@ -165,15 +165,6 @@ enum CubeMove4x4 {
 // Cube3x3 has a Cube
 // - has one method doMove(move: CubeMove3x3): void
 // - delegates to inner Cube: this.cube.doMove(getCubeMoveFrom3x3(move))
-
-// TODO: make layers a list
-// Full cube rotation is == rotate all layers
-// Represents all possible moves on a cube
-type CubeMove = {
-  cubeSize: number;
-  cubeFaceTurn: CubeFaceTurn;
-  layerNum: number;
-};
 
 // Returns the positions of cubes that need to be rotated
 type CubeMovePosition = {
@@ -489,7 +480,7 @@ export default class RubiksCube {
   }
   */
 
-  private async doMove(cubeMove: CubeMove2, duration: number = this.speed) {
+  private async doMove(cubeMove: CubeMove, duration: number = this.speed) {
     const coords = getCubeCoords(cubeMove.cubeSize, cubeMove.layers);
     const cubes = this.scene.children.filter(
       (node) => {
@@ -504,6 +495,7 @@ export default class RubiksCube {
           case Axis.z:
             return coords.includes(node.position.z);
         }
+        return true;
       });
     await this.rotate(cubes, cubeMove.axis, cubeMove.clockwise, duration);
   }

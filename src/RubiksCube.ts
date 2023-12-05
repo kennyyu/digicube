@@ -191,7 +191,7 @@ function getAllCubeMoveMaps(): Map<number, Map<string, CubeMove>> {
 }
 
 // Map if cube size -> move name -> move info
-const CUBE_MOVE_MAP = getAllCubeMoveMaps();
+export const CUBE_MOVE_MAP = getAllCubeMoveMaps();
 
 // Creates (cubeSize x cubeSize x cubeSize) cubes, where the cubes
 // are centered around the origin. Examples:
@@ -282,7 +282,7 @@ class CameraView {
   }
 }
 
-export default class RubiksCube {
+export class RubiksCube {
   private locked: boolean = false;
   private materials: THREE.MeshBasicMaterial[];
   private speed: number;

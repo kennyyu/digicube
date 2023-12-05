@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import RubiksCube from './RubiksCube';
+import { RubiksCube, CUBE_MOVE_MAP } from './RubiksCube';
 import materials from './materials';
 
 function App() {
@@ -67,6 +67,16 @@ function CubeApp(props: CubeAppProps) {
   // State to store the current cube
   const [cube, setCube] = useState<RubiksCube>();
 
+  // State to store all buttons to perform moves
+  const [buttons, setButtons] = useState<Map<string, HTMLButtonElement>>(new Map());
+
+  // All possible moves
+  const allMoves = CUBE_MOVE_MAP.get(props.cubeSize)?.keys();
+  if (!allMoves) {
+    throw new Error(`No moves found for cube size ${props.cubeSize}`);
+  }
+
+
   useEffect(() => {
     if (canvasRef.current
       && canvasRefFront.current
@@ -93,7 +103,8 @@ function CubeApp(props: CubeAppProps) {
       const onKeyPressed = (event: KeyboardEvent) => {
         switch (event.key) {
           case "q":
-            buttonRefF.current?.click();
+            buttons.get('F')?.click();
+            //            buttonRefF.current?.click();
             break;
           case "e":
             buttonRefB.current?.click();
@@ -235,6 +246,24 @@ function CubeApp(props: CubeAppProps) {
               <button onClick={() => { if (cube) cube.doMove("y'") }} ref={buttonRefyinv}>y'</button>
               <button onClick={() => { if (cube) cube.doMove("z") }} ref={buttonRefz}>z</button>
               <button onClick={() => { if (cube) cube.doMove("z'") }} ref={buttonRefzinv}>z'</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              {
+                [...allMoves].map((moveName) => (
+                  <button
+                    key={moveName}
+                    onClick={() => { if (cube) cube.doMove(moveName); }}
+                    ref={(ref) => {
+                      if (ref) {
+                        setButtons(buttons.set(moveName, ref));
+                      }
+                    }}>
+                    {moveName}
+                  </button>
+                ))
+              }
             </td>
           </tr>
         </tbody>

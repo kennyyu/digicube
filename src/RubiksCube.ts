@@ -182,6 +182,17 @@ function getCubeMoveMap(cubeSize: number): Map<string, CubeMove> {
   return moveMap;
 }
 
+function getAllCubeMoveMaps(): Map<number, Map<string, CubeMove>> {
+  const moveMaps = new Map<number, Map<string, CubeMove>>();
+  for (const i of Array(11).keys()) {
+    moveMaps.set(i, getCubeMoveMap(i));
+  }
+  return moveMaps;
+}
+
+// Map if cube size -> move name -> move info
+const CUBE_MOVE_MAP = getAllCubeMoveMaps();
+
 // Creates (cubeSize x cubeSize x cubeSize) cubes, where the cubes
 // are centered around the origin. Examples:
 // 3x3 -- F: z == 1, B: z == -1
@@ -395,7 +406,11 @@ export default class RubiksCube {
   }
   */
 
-  private async doMove(cubeMove: CubeMove, duration: number = this.speed) {
+  public async doMove(moveName: string, duration: number = this.speed) {
+    const cubeMove = CUBE_MOVE_MAP.get(this.cubeSize)?.get(moveName);
+    if (!cubeMove) {
+      throw Error(`Invalid move name ${moveName}`);
+    }
     const coords = getCubeCoords(cubeMove.cubeSize, cubeMove.layers);
     const cubes = this.scene.children.filter(
       (node) => {
@@ -409,12 +424,14 @@ export default class RubiksCube {
             return coords.includes(node.position.y);
           case Axis.z:
             return coords.includes(node.position.z);
+          default:
+            return true;
         }
-        return true;
       });
     await this.rotate(cubes, cubeMove.axis, cubeMove.clockwise, duration);
   }
 
+  /*
   // Front
   public async F(clockwise: boolean = true, duration: number = this.speed) {
     await this.doMove({
@@ -493,6 +510,7 @@ export default class RubiksCube {
       layers: Array.from(Array(this.cubeSize).keys()),
     });
   }
+  */
 
   private async rotate(
     cubes: THREE.Object3D[],

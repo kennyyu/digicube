@@ -213,28 +213,28 @@ function CubeApp(props: CubeAppProps) {
           </tr>
           <tr>
             <td>
-              <button onClick={() => { if (cube) cube.F() }} ref={buttonRefF}>F</button>
-              <button onClick={() => { if (cube) cube.F(false) }} ref={buttonRefFinv}>F'</button>
-              <button onClick={() => { if (cube) cube.B() }} ref={buttonRefB}>B</button>
-              <button onClick={() => { if (cube) cube.B(false) }} ref={buttonRefBinv}>B'</button>
-              <button onClick={() => { if (cube) cube.U() }} ref={buttonRefU}>U</button>
-              <button onClick={() => { if (cube) cube.U(false) }} ref={buttonRefUinv}>U'</button>
-              <button onClick={() => { if (cube) cube.D() }} ref={buttonRefD}>D</button>
-              <button onClick={() => { if (cube) cube.D(false) }} ref={buttonRefDinv}>D'</button>
-              <button onClick={() => { if (cube) cube.L() }} ref={buttonRefL}>L</button>
-              <button onClick={() => { if (cube) cube.L(false) }} ref={buttonRefLinv}>L'</button>
-              <button onClick={() => { if (cube) cube.R() }} ref={buttonRefR}>R</button>
-              <button onClick={() => { if (cube) cube.R(false) }} ref={buttonRefRinv}>R'</button>
+              <button onClick={() => { if (cube) cube.doMove("F") }} ref={buttonRefF}>F</button>
+              <button onClick={() => { if (cube) cube.doMove("F'") }} ref={buttonRefFinv}>F'</button>
+              <button onClick={() => { if (cube) cube.doMove("B") }} ref={buttonRefB}>B</button>
+              <button onClick={() => { if (cube) cube.doMove("B'") }} ref={buttonRefBinv}>B'</button>
+              <button onClick={() => { if (cube) cube.doMove("U") }} ref={buttonRefU}>U</button>
+              <button onClick={() => { if (cube) cube.doMove("U'") }} ref={buttonRefUinv}>U'</button>
+              <button onClick={() => { if (cube) cube.doMove("D") }} ref={buttonRefD}>D</button>
+              <button onClick={() => { if (cube) cube.doMove("D'") }} ref={buttonRefDinv}>D'</button>
+              <button onClick={() => { if (cube) cube.doMove("L") }} ref={buttonRefL}>L</button>
+              <button onClick={() => { if (cube) cube.doMove("L'") }} ref={buttonRefLinv}>L'</button>
+              <button onClick={() => { if (cube) cube.doMove("R") }} ref={buttonRefR}>R</button>
+              <button onClick={() => { if (cube) cube.doMove("R'") }} ref={buttonRefRinv}>R'</button>
             </td>
           </tr>
           <tr>
             <td>
-              <button onClick={() => { if (cube) cube.x() }} ref={buttonRefx}>x</button>
-              <button onClick={() => { if (cube) cube.x(false) }} ref={buttonRefxinv}>x'</button>
-              <button onClick={() => { if (cube) cube.y() }} ref={buttonRefy}>y</button>
-              <button onClick={() => { if (cube) cube.y(false) }} ref={buttonRefyinv}>y'</button>
-              <button onClick={() => { if (cube) cube.z() }} ref={buttonRefz}>z</button>
-              <button onClick={() => { if (cube) cube.z(false) }} ref={buttonRefzinv}>z'</button>
+              <button onClick={() => { if (cube) cube.doMove("x") }} ref={buttonRefx}>x</button>
+              <button onClick={() => { if (cube) cube.doMove("x'") }} ref={buttonRefxinv}>x'</button>
+              <button onClick={() => { if (cube) cube.doMove("y") }} ref={buttonRefy}>y</button>
+              <button onClick={() => { if (cube) cube.doMove("y'") }} ref={buttonRefyinv}>y'</button>
+              <button onClick={() => { if (cube) cube.doMove("z") }} ref={buttonRefz}>z</button>
+              <button onClick={() => { if (cube) cube.doMove("z'") }} ref={buttonRefzinv}>z'</button>
             </td>
           </tr>
         </tbody>

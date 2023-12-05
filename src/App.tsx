@@ -91,16 +91,16 @@ function CubeApp(props: CubeAppProps) {
       // TODO: wasdxf, jkl controls
       const onKeyPressed = (event: KeyboardEvent) => {
         switch (event.key) {
-          case "s":
+          case "q":
             buttonRefF.current?.click();
             break;
-          case "f":
+          case "e":
             buttonRefB.current?.click();
             break;
           case "w":
             buttonRefU.current?.click();
             break;
-          case "x":
+          case "s":
             buttonRefD.current?.click();
             break;
           case "a":
@@ -109,16 +109,16 @@ function CubeApp(props: CubeAppProps) {
           case "d":
             buttonRefR.current?.click();
             break;
-          case "S":
+          case "Q":
             buttonRefFinv.current?.click();
             break;
-          case "F":
+          case "E":
             buttonRefBinv.current?.click();
             break;
           case "W":
             buttonRefUinv.current?.click();
             break;
-          case "X":
+          case "S":
             buttonRefDinv.current?.click();
             break;
           case "A":
@@ -183,7 +183,7 @@ function CubeApp(props: CubeAppProps) {
                     <td>
                       <canvas width="100px" height="100px" ref={canvasRefFront} />
                       <br />
-                      s
+                      q
                     </td>
                     <td>
                       <canvas width="100px" height="100px" ref={canvasRefRight} />
@@ -193,7 +193,7 @@ function CubeApp(props: CubeAppProps) {
                     <td>
                       <canvas width="100px" height="100px" ref={canvasRefBack} />
                       <br />
-                      f
+                      e
                     </td>
                   </tr>
                   <tr>
@@ -201,7 +201,7 @@ function CubeApp(props: CubeAppProps) {
                     <td>
                       <canvas width="100px" height="100px" ref={canvasRefDown} />
                       <br />
-                      x
+                      s
                     </td>
                     <td />
                     <td />

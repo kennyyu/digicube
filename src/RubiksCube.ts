@@ -111,38 +111,26 @@ enum Axis {
   z = 'z',
 }
 
-// TODO: direction
-// All move types -- this is exposed externally (Cube3x3 delegates to Cube)
-// F0, F1, F2, ... x, y, z
-// =>
-// map into primitives -- this is used internally (Cube)
-// F0 => (7x7, x, clockwise, [0])
-// x => (7x7, x, clockwise, [0,1,2,3,4,5,6])
+// Represents a single move on a cube
 type CubeMove = {
+  // Rotations will be performed around this axis
   axis: Axis;
   clockwise: boolean;
   cubeSize: number;
   // Layers always start from the positive axis direction.
-  // X, layer 0 == R. Y, layer 0 == U. Z, layer 0 == F
+  // Examples: X, layer 0 == R. Y, layer 0 == U. Z, layer 0 == F
   layers: number[];
 };
 
+// Returns the coordinates of the cubes in the provided layers
 function getCubeCoords(cubeSize: number, layers: number[]): number[] {
   const initialCoord = (cubeSize - 1) / 2;
   return layers.map((x) => initialCoord - x);
 }
 
-// function to map 3x3 move into CubeMove
-// function getCubeMoveFrom3x3(move: CubeMove3x3): CubeMove {
-//
-// }
-
-// Cube3x3 has a Cube
-// - has one method doMove(move: CubeMove3x3): void
-// - delegates to inner Cube: this.cube.doMove(getCubeMoveFrom3x3(move))
-
+// Gets all possible moves on cubeSize x cubeSize x cubeSize cube
 function getCubeMoveMap(cubeSize: number): Map<string, CubeMove> {
-  let moveMap = new Map<string, CubeMove>();
+  const moveMap = new Map<string, CubeMove>();
 
   // Full cube rotations, e.g.
   // x -> rotate all layers clockwise around x axis
@@ -173,15 +161,16 @@ function getCubeMoveMap(cubeSize: number): Map<string, CubeMove> {
   const layersInverted = new Set<string>(["B", "D", "L"]);
 
   // Individual turns on each layer, e.g.
-  // 0F -> turn front layer clockwise
+  // F -> turn front layer clockwise (no 0 prefix)
   // 1F' -> turn second front layer counter-clockwise
   for (const [face, axis] of faceToAxisMap) {
     for (const clockwise of [true, false]) {
-      for (const layerNum of Array(cubeSize / 2).keys()) {
+      for (const layerNum of Array(Math.floor(cubeSize / 2)).keys()) {
         const moveNameFinal = `${face}${clockwise ? "'" : ""}`;
         const layerNumFinal = layersInverted.has(face)
           ? cubeSize - 1 - layerNum : layerNum;
-        moveMap.set(`${layerNum}${moveNameFinal}`, {
+        // Special case: layer 0 -- no 0 prefix required
+        moveMap.set(`${layerNum === 0 ? "" : layerNum}${moveNameFinal}`, {
           axis: axis,
           clockwise: clockwise,
           cubeSize: cubeSize,
@@ -193,157 +182,12 @@ function getCubeMoveMap(cubeSize: number): Map<string, CubeMove> {
   return moveMap;
 }
 
-// TODO: programmatically generate this map, given size
-// TODO: just use a map instead of enum
-const CUBE_MOVES_3X3: Map<string, CubeMove> = new Map([
-  ["x",
-    {
-      axis: Axis.x,
-      clockwise: true,
-      cubeSize: 3,
-      layers: Array.from(Array(3).keys()),
-    }],
-  ["x'",
-    {
-      axis: Axis.x,
-      clockwise: false,
-      cubeSize: 3,
-      layers: Array.from(Array(3).keys()),
-    }],
-  ["y",
-    {
-      axis: Axis.y,
-      clockwise: true,
-      cubeSize: 3,
-      layers: Array.from(Array(3).keys()),
-    }],
-  ["y'",
-    {
-      axis: Axis.y,
-      clockwise: false,
-      cubeSize: 3,
-      layers: Array.from(Array(3).keys()),
-    }],
-  ["z",
-    {
-      axis: Axis.z,
-      clockwise: true,
-      cubeSize: 3,
-      layers: Array.from(Array(3).keys()),
-    }],
-  ["z'",
-    {
-      axis: Axis.z,
-      clockwise: false,
-      cubeSize: 3,
-      layers: Array.from(Array(3).keys()),
-    }],
-  ["F",
-    {
-      axis: Axis.z,
-      clockwise: true,
-      cubeSize: 3,
-      layers: [0],
-    }],
-  ["F'",
-    {
-      axis: Axis.z,
-      clockwise: false,
-      cubeSize: 3,
-      layers: [0],
-    }],
-  ["B",
-    {
-      axis: Axis.z,
-      clockwise: true,
-      cubeSize: 3,
-      layers: [2],
-    }],
-  ["B'",
-    {
-      axis: Axis.z,
-      clockwise: false,
-      cubeSize: 3,
-      layers: [2],
-    }],
-  ["U",
-    {
-      axis: Axis.y,
-      clockwise: true,
-      cubeSize: 3,
-      layers: [0],
-    }],
-  ["U'",
-    {
-      axis: Axis.y,
-      clockwise: false,
-      cubeSize: 3,
-      layers: [0],
-    }],
-  ["D",
-    {
-      axis: Axis.y,
-      clockwise: true,
-      cubeSize: 3,
-      layers: [2],
-    }],
-  ["D'",
-    {
-      axis: Axis.y,
-      clockwise: false,
-      cubeSize: 3,
-      layers: [2],
-    }],
-  ["R",
-    {
-      axis: Axis.x,
-      clockwise: true,
-      cubeSize: 3,
-      layers: [0],
-    }],
-  ["R'",
-    {
-      axis: Axis.x,
-      clockwise: false,
-      cubeSize: 3,
-      layers: [0],
-    }],
-  ["L",
-    {
-      axis: Axis.x,
-      clockwise: true,
-      cubeSize: 3,
-      layers: [2],
-    }],
-  ["L'",
-    {
-      axis: Axis.x,
-      clockwise: false,
-      cubeSize: 3,
-      layers: [2],
-    }],
-]);
-
-// F is F0
-// 3x3
-// F: z == 1, B: z == -1
-// 4x4
-// F: z == 1.5, F1 = 0.5, B1 = -0.5, B = -1.5
-// 5x5
-// F: z == 2, F1 == 1, B1 == -1, B == -2
-// 6x6
-// F: z == 2.5, F1 == 1.5, F2 == 0.5, B2 == -0.5, F1 == -1.5, F6 == -2.5
-
-// Need a map of (Cube Size, Num) => offset
-// (5x5, 2) => 1
-// (6x6, 1) => 2.5; (6x6, 2) => 1.5, (6x6, 3) => 0.5
-// Need a map of symbol to sign
-// F => +1; B => -1
-// Combine it all together (cube size, move) -> (axis, position):
-// (6x6, F2) => letter_lookup(F) * num_lookup(2) => index
-
 // Creates (cubeSize x cubeSize x cubeSize) cubes, where the cubes
-// are centered around the origin.
+// are centered around the origin. Examples:
+// 3x3 -- F: z == 1, B: z == -1
+// 4x4 -- F: z == 1.5, 1F = 0.5, 1B = -0.5, B = -1.5
+// 5x5 -- F: z == 2, 1F == 1, 1B == -1, B == -2
+// 6x6 -- F: z == 2.5, 1F == 1.5, 2F == 0.5, 2B == -0.5, 1B == -1.5, B == -2.5
 function generateCubeCluster(
   cubeSize: number,
   materials: THREE.MeshBasicMaterial[],

@@ -132,31 +132,6 @@ function getCubeCoords(cubeSize: number, layers: number[]): number[] {
   return layers.map((x) => initialCoord - x);
 }
 
-enum CubeFaceTurn {
-  F = "F",
-  F_inv = "F_inv",
-  B = "B",
-  B_inv = "B_inv",
-  U = "U",
-  U_inv = "U_inv",
-  D = "D",
-  D_inv = "D_inv",
-  R = "R",
-  R_inv = "R_inv",
-  L = "L",
-  L_inv = "L_inv",
-}
-
-enum CubeMove3x3 {
-  F,
-  F_inv,
-  //...
-}
-
-enum CubeMove4x4 {
-
-}
-
 // function to map 3x3 move into CubeMove
 // function getCubeMoveFrom3x3(move: CubeMove3x3): CubeMove {
 //
@@ -166,92 +141,188 @@ enum CubeMove4x4 {
 // - has one method doMove(move: CubeMove3x3): void
 // - delegates to inner Cube: this.cube.doMove(getCubeMoveFrom3x3(move))
 
-// Returns the positions of cubes that need to be rotated
-type CubeMovePosition = {
-  axis: Axis;
-  clockwise: boolean;
-  coord: number;
-};
+function getCubeMoveMap(cubeSize: number): Map<string, CubeMove> {
+  let moveMap = new Map<string, CubeMove>();
 
-// TODO: don't need B. It is a special case of F.
-function getCubeFaceTurnBasePosition(
-  cubeFaceTurn: CubeFaceTurn,
-): CubeMovePosition {
-  switch (cubeFaceTurn) {
-    case CubeFaceTurn.F:
-      return {
-        axis: Axis.z,
-        clockwise: true,
-        coord: 1,
-      };
-    case CubeFaceTurn.F_inv:
-      return {
-        axis: Axis.z,
-        clockwise: false,
-        coord: 1,
-      };
-    case CubeFaceTurn.B:
-      return {
-        axis: Axis.z,
-        clockwise: true,
-        coord: -1,
-      };
-    case CubeFaceTurn.B_inv:
-      return {
-        axis: Axis.z,
-        clockwise: false,
-        coord: -1,
-      };
-    case CubeFaceTurn.U:
-      return {
-        axis: Axis.y,
-        clockwise: true,
-        coord: 1,
-      };
-    case CubeFaceTurn.U_inv:
-      return {
-        axis: Axis.y,
-        clockwise: false,
-        coord: 1,
-      };
-    case CubeFaceTurn.D:
-      return {
-        axis: Axis.y,
-        clockwise: true,
-        coord: -1,
-      };
-    case CubeFaceTurn.D_inv:
-      return {
-        axis: Axis.y,
-        clockwise: false,
-        coord: -1,
-      };
-    case CubeFaceTurn.R:
-      return {
-        axis: Axis.x,
-        clockwise: true,
-        coord: 1,
-      };
-    case CubeFaceTurn.R_inv:
-      return {
-        axis: Axis.x,
-        clockwise: false,
-        coord: 1,
-      };
-    case CubeFaceTurn.L:
-      return {
-        axis: Axis.x,
-        clockwise: true,
-        coord: -1,
-      };
-    case CubeFaceTurn.L_inv:
-      return {
-        axis: Axis.x,
-        clockwise: false,
-        coord: -1,
-      };
+  // Full cube rotations, e.g.
+  // x -> rotate all layers clockwise around x axis
+  // y' -> rotate all layers counter-clockwise around y axis
+  for (const moveName of ["x", "y", "z"]) {
+    for (const clockwise of [true, false]) {
+      const moveNameFinal = `${moveName}${clockwise ? "'" : ""}`;
+      moveMap.set(moveNameFinal, {
+        axis: moveName as Axis,
+        clockwise: clockwise,
+        cubeSize: cubeSize,
+        layers: Array.from(Array(cubeSize).keys()),
+      });
+    }
   }
+
+  // Map of face name -> axis they rotate around
+  const faceToAxisMap = new Map<string, Axis>([
+    ["F", Axis.z],
+    ["B", Axis.z],
+    ["U", Axis.y],
+    ["D", Axis.y],
+    ["R", Axis.x],
+    ["L", Axis.x],
+  ]);
+
+  // Layer numbers must be inverted for these faces
+  const layersInverted = new Set<string>(["B", "D", "L"]);
+
+  // Individual turns on each layer, e.g.
+  // 0F -> turn front layer clockwise
+  // 1F' -> turn second front layer counter-clockwise
+  for (const [face, axis] of faceToAxisMap) {
+    for (const clockwise of [true, false]) {
+      for (const layerNum of Array(cubeSize / 2).keys()) {
+        const moveNameFinal = `${face}${clockwise ? "'" : ""}`;
+        const layerNumFinal = layersInverted.has(face)
+          ? cubeSize - 1 - layerNum : layerNum;
+        moveMap.set(`${layerNum}${moveNameFinal}`, {
+          axis: axis,
+          clockwise: clockwise,
+          cubeSize: cubeSize,
+          layers: [layerNumFinal],
+        });
+      }
+    }
+  }
+  return moveMap;
 }
+
+// TODO: programmatically generate this map, given size
+// TODO: just use a map instead of enum
+const CUBE_MOVES_3X3: Map<string, CubeMove> = new Map([
+  ["x",
+    {
+      axis: Axis.x,
+      clockwise: true,
+      cubeSize: 3,
+      layers: Array.from(Array(3).keys()),
+    }],
+  ["x'",
+    {
+      axis: Axis.x,
+      clockwise: false,
+      cubeSize: 3,
+      layers: Array.from(Array(3).keys()),
+    }],
+  ["y",
+    {
+      axis: Axis.y,
+      clockwise: true,
+      cubeSize: 3,
+      layers: Array.from(Array(3).keys()),
+    }],
+  ["y'",
+    {
+      axis: Axis.y,
+      clockwise: false,
+      cubeSize: 3,
+      layers: Array.from(Array(3).keys()),
+    }],
+  ["z",
+    {
+      axis: Axis.z,
+      clockwise: true,
+      cubeSize: 3,
+      layers: Array.from(Array(3).keys()),
+    }],
+  ["z'",
+    {
+      axis: Axis.z,
+      clockwise: false,
+      cubeSize: 3,
+      layers: Array.from(Array(3).keys()),
+    }],
+  ["F",
+    {
+      axis: Axis.z,
+      clockwise: true,
+      cubeSize: 3,
+      layers: [0],
+    }],
+  ["F'",
+    {
+      axis: Axis.z,
+      clockwise: false,
+      cubeSize: 3,
+      layers: [0],
+    }],
+  ["B",
+    {
+      axis: Axis.z,
+      clockwise: true,
+      cubeSize: 3,
+      layers: [2],
+    }],
+  ["B'",
+    {
+      axis: Axis.z,
+      clockwise: false,
+      cubeSize: 3,
+      layers: [2],
+    }],
+  ["U",
+    {
+      axis: Axis.y,
+      clockwise: true,
+      cubeSize: 3,
+      layers: [0],
+    }],
+  ["U'",
+    {
+      axis: Axis.y,
+      clockwise: false,
+      cubeSize: 3,
+      layers: [0],
+    }],
+  ["D",
+    {
+      axis: Axis.y,
+      clockwise: true,
+      cubeSize: 3,
+      layers: [2],
+    }],
+  ["D'",
+    {
+      axis: Axis.y,
+      clockwise: false,
+      cubeSize: 3,
+      layers: [2],
+    }],
+  ["R",
+    {
+      axis: Axis.x,
+      clockwise: true,
+      cubeSize: 3,
+      layers: [0],
+    }],
+  ["R'",
+    {
+      axis: Axis.x,
+      clockwise: false,
+      cubeSize: 3,
+      layers: [0],
+    }],
+  ["L",
+    {
+      axis: Axis.x,
+      clockwise: true,
+      cubeSize: 3,
+      layers: [2],
+    }],
+  ["L'",
+    {
+      axis: Axis.x,
+      clockwise: false,
+      cubeSize: 3,
+      layers: [2],
+    }],
+]);
 
 // F is F0
 // 3x3

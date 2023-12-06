@@ -166,7 +166,7 @@ function getCubeMoveMap(cubeSize: number): Map<string, CubeMove> {
   for (const [face, axis] of faceToAxisMap) {
     for (const clockwise of [true, false]) {
       for (const layerNum of Array(Math.floor(cubeSize / 2)).keys()) {
-        const moveNameFinal = `${face}${clockwise ? "'" : ""}`;
+        const moveNameFinal = `${face}${clockwise ? "" : "'"}`;
         const layerNumFinal = layersInverted.has(face)
           ? cubeSize - 1 - layerNum : layerNum;
         // Special case: layer 0 -- no 0 prefix required
@@ -445,90 +445,13 @@ export class RubiksCube {
     // TODO: generate based on cube size, and random
     const numMoves = 100;
     for (let i = 0; i < numMoves; ++i) {
-      await this.doMove(moves[Math.floor(Math.random() * moves.length)], 100);
+      // Do not render intermediate scrambles
+      await this.doMove(moves[Math.floor(Math.random() * moves.length)], 0);
     }
-  }
 
-  /*
-  // Front
-  public async F(clockwise: boolean = true, duration: number = this.speed) {
-    await this.doMove({
-      axis: Axis.z,
-      clockwise: clockwise,
-      cubeSize: this.cubeSize,
-      layers: [0],
-    });
+    // Render only the final state
+    this.render();
   }
-
-  // Back
-  public async B(clockwise: boolean = true, duration: number = this.speed) {
-    await this.doMove({
-      axis: Axis.z,
-      clockwise: clockwise,
-      cubeSize: this.cubeSize,
-      layers: [this.cubeSize - 1],
-    });
-  }
-
-  // Up
-  public async U(clockwise: boolean = true, duration: number = this.speed) {
-    const cubes = this.scene.children.filter(
-      (node) => node instanceof CubeMesh && node.position.y === 1);
-    await this.rotate(cubes, Axis.y, clockwise, duration);
-  }
-
-  // Down
-  public async D(clockwise: boolean = true, duration: number = this.speed) {
-    const cubes = this.scene.children.filter(
-      (node) => node instanceof CubeMesh && node.position.y === -1);
-    await this.rotate(cubes, Axis.y, clockwise, duration);
-  }
-
-  // Left
-  public async L(clockwise: boolean = true, duration: number = this.speed) {
-    const cubes = this.scene.children.filter(
-      (node) => node instanceof CubeMesh && node.position.x === -1);
-    await this.rotate(cubes, Axis.x, clockwise, duration);
-  }
-
-  // Right
-  public async R(clockwise: boolean = true, duration: number = this.speed) {
-    const cubes = this.scene.children.filter(
-      (node) => node instanceof CubeMesh && node.position.x === 1);
-    await this.rotate(cubes, Axis.x, clockwise, duration);
-  }
-
-  // Cube on x axis
-  public async x(clockwise: boolean = true, duration: number = this.speed) {
-    await this.doMove({
-      axis: Axis.x,
-      clockwise: clockwise,
-      cubeSize: this.cubeSize,
-      layers: Array.from(Array(this.cubeSize).keys()),
-    });
-  }
-
-
-  // Cube on y axis
-  public async y(clockwise: boolean = true, duration: number = this.speed) {
-    await this.doMove({
-      axis: Axis.y,
-      clockwise: clockwise,
-      cubeSize: this.cubeSize,
-      layers: Array.from(Array(this.cubeSize).keys()),
-    });
-  }
-
-  // Cube on z axis
-  public async z(clockwise: boolean = true, duration: number = this.speed) {
-    await this.doMove({
-      axis: Axis.z,
-      clockwise: clockwise,
-      cubeSize: this.cubeSize,
-      layers: Array.from(Array(this.cubeSize).keys()),
-    });
-  }
-  */
 
   private async rotate(
     cubes: THREE.Object3D[],
@@ -579,7 +502,10 @@ export class RubiksCube {
       this.scene.remove(group);
       this.locked = false;
 
-      this.renderFaces();
+      // If duration is 0, do not render intermediate frames
+      if (duration !== 0) {
+        this.renderFaces();
+      }
     }
   }
 
@@ -590,6 +516,26 @@ export class RubiksCube {
     duration: number,
     start?: number,
   ) {
+    // If duration is 0, do not render intermediate frames
+    if (duration === 0) {
+      const radians = (clockwise ? -1 : 1) * THREE.MathUtils.degToRad(90);
+      switch (axis) {
+        case Axis.x:
+          object.rotation.set(radians, 0, 0);
+          break;
+        case Axis.y:
+          object.rotation.set(0, radians, 0);
+          break;
+        case Axis.z:
+          object.rotation.set(0, 0, radians);
+          break;
+        default:
+          break;
+      }
+      return;
+    }
+
+    // Otherwise, render intermediate frames
     return new Promise<void>(async (resolve) => {
       window.requestAnimationFrame(async (timestamp) => {
         const s = start || timestamp;

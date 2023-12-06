@@ -431,6 +431,21 @@ export class RubiksCube {
     await this.rotate(cubes, cubeMove.axis, cubeMove.clockwise, duration);
   }
 
+  public async scramble(): Promise<void> {
+    const allMoves = CUBE_MOVE_MAP.get(this.cubeSize);
+    if (!allMoves) {
+      return;
+    }
+    const moves = [...allMoves.keys()]
+      .filter((moveName: string) =>
+        !["x", "x'", "y", "y'", "z", "z'"].includes(moveName));
+    // TODO: generate based on cube size, and random
+    const numMoves = 100;
+    for (let i = 0; i < numMoves; ++i) {
+      await this.doMove(moves[Math.floor(Math.random() * moves.length)], 100);
+    }
+  }
+
   /*
   // Front
   public async F(clockwise: boolean = true, duration: number = this.speed) {

@@ -144,6 +144,38 @@ function CubeApp(props: CubeAppProps) {
         <tbody>
           <tr>
             <td>
+              <button onClick={() => { cube?.scramble() }}>
+                Scramble
+              </button>
+              <button onClick={() => {
+                if (canvasRef.current
+                  && canvasRefFront.current
+                  && canvasRefBack.current
+                  && canvasRefUp.current
+                  && canvasRefDown.current
+                  && canvasRefRight.current
+                  && canvasRefLeft.current
+                ) {
+                  setCube(new RubiksCube(
+                    props.cubeSize,
+                    canvasRef.current,
+                    canvasRefFront.current,
+                    canvasRefBack.current,
+                    canvasRefUp.current,
+                    canvasRefDown.current,
+                    canvasRefRight.current,
+                    canvasRefLeft.current,
+                    materials.classic,
+                    100,
+                  ));
+                }
+              }}>
+                Reset
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>
               <canvas width="400px" height="400px" ref={canvasRef} />
             </td>
           </tr>

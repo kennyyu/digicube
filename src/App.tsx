@@ -44,26 +44,6 @@ function CubeApp(props: CubeAppProps) {
   const canvasRefRight = useRef<HTMLCanvasElement>(null);
   const canvasRefLeft = useRef<HTMLCanvasElement>(null);
 
-  // Buttons to rotate the cube
-  const buttonRefF = useRef<HTMLButtonElement>(null);
-  const buttonRefB = useRef<HTMLButtonElement>(null);
-  const buttonRefU = useRef<HTMLButtonElement>(null);
-  const buttonRefD = useRef<HTMLButtonElement>(null);
-  const buttonRefL = useRef<HTMLButtonElement>(null);
-  const buttonRefR = useRef<HTMLButtonElement>(null);
-  const buttonRefFinv = useRef<HTMLButtonElement>(null);
-  const buttonRefBinv = useRef<HTMLButtonElement>(null);
-  const buttonRefUinv = useRef<HTMLButtonElement>(null);
-  const buttonRefDinv = useRef<HTMLButtonElement>(null);
-  const buttonRefLinv = useRef<HTMLButtonElement>(null);
-  const buttonRefRinv = useRef<HTMLButtonElement>(null);
-  const buttonRefx = useRef<HTMLButtonElement>(null);
-  const buttonRefy = useRef<HTMLButtonElement>(null);
-  const buttonRefz = useRef<HTMLButtonElement>(null);
-  const buttonRefxinv = useRef<HTMLButtonElement>(null);
-  const buttonRefyinv = useRef<HTMLButtonElement>(null);
-  const buttonRefzinv = useRef<HTMLButtonElement>(null);
-
   // State to store the current cube
   const [cube, setCube] = useState<RubiksCube>();
 
@@ -99,63 +79,61 @@ function CubeApp(props: CubeAppProps) {
         100,
       ));
 
-      // TODO: wasdxf, jkl controls
       const onKeyPressed = (event: KeyboardEvent) => {
         switch (event.key) {
           case "q":
-            buttons.get('F')?.click();
-            //            buttonRefF.current?.click();
+            buttons.get("F")?.click();
             break;
           case "e":
-            buttonRefB.current?.click();
+            buttons.get("B")?.click();
             break;
           case "w":
-            buttonRefU.current?.click();
+            buttons.get("U")?.click();
             break;
           case "s":
-            buttonRefD.current?.click();
+            buttons.get("D")?.click();
             break;
           case "a":
-            buttonRefL.current?.click();
+            buttons.get("L")?.click();
             break;
           case "d":
-            buttonRefR.current?.click();
+            buttons.get("R")?.click();
             break;
           case "Q":
-            buttonRefFinv.current?.click();
+            buttons.get("F'")?.click();
             break;
           case "E":
-            buttonRefBinv.current?.click();
+            buttons.get("B'")?.click();
             break;
           case "W":
-            buttonRefUinv.current?.click();
+            buttons.get("U'")?.click();
             break;
           case "S":
-            buttonRefDinv.current?.click();
+            buttons.get("D'")?.click();
             break;
           case "A":
-            buttonRefLinv.current?.click();
+            buttons.get("L'")?.click();
             break;
           case "D":
-            buttonRefRinv.current?.click();
+            buttons.get("R'")?.click();
             break;
           case "l":
-            buttonRefx.current?.click();
+            buttons.get("x")?.click();
             break;
           case "k":
-            buttonRefy.current?.click();
+            buttons.get("y")?.click();
             break;
           case "j":
-            buttonRefz.current?.click();
+            buttons.get("z")?.click();
             break;
           case "L":
-            buttonRefxinv.current?.click();
+            buttons.get("x'")?.click();
             break;
           case "K":
-            buttonRefyinv.current?.click();
+            buttons.get("y'")?.click();
             break;
           case "J":
-            buttonRefzinv.current?.click();
+            buttons.get("z'")?.click();
             break;
         }
       };
@@ -181,7 +159,7 @@ function CubeApp(props: CubeAppProps) {
                     <td>
                       <canvas width="100px" height="100px" ref={canvasRefUp} />
                       <br />
-                      w
+                      Up
                     </td>
                     <td />
                     <td />
@@ -190,22 +168,22 @@ function CubeApp(props: CubeAppProps) {
                     <td>
                       <canvas width="100px" height="100px" ref={canvasRefLeft} />
                       <br />
-                      a
+                      Left
                     </td>
                     <td>
                       <canvas width="100px" height="100px" ref={canvasRefFront} />
                       <br />
-                      q
+                      Front
                     </td>
                     <td>
                       <canvas width="100px" height="100px" ref={canvasRefRight} />
                       <br />
-                      d
+                      Right
                     </td>
                     <td>
                       <canvas width="100px" height="100px" ref={canvasRefBack} />
                       <br />
-                      e
+                      Back
                     </td>
                   </tr>
                   <tr>
@@ -213,39 +191,13 @@ function CubeApp(props: CubeAppProps) {
                     <td>
                       <canvas width="100px" height="100px" ref={canvasRefDown} />
                       <br />
-                      s
+                      Down
                     </td>
                     <td />
                     <td />
                   </tr>
                 </tbody>
               </table>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <button onClick={() => { if (cube) cube.doMove("F") }} ref={buttonRefF}>F</button>
-              <button onClick={() => { if (cube) cube.doMove("F'") }} ref={buttonRefFinv}>F'</button>
-              <button onClick={() => { if (cube) cube.doMove("B") }} ref={buttonRefB}>B</button>
-              <button onClick={() => { if (cube) cube.doMove("B'") }} ref={buttonRefBinv}>B'</button>
-              <button onClick={() => { if (cube) cube.doMove("U") }} ref={buttonRefU}>U</button>
-              <button onClick={() => { if (cube) cube.doMove("U'") }} ref={buttonRefUinv}>U'</button>
-              <button onClick={() => { if (cube) cube.doMove("D") }} ref={buttonRefD}>D</button>
-              <button onClick={() => { if (cube) cube.doMove("D'") }} ref={buttonRefDinv}>D'</button>
-              <button onClick={() => { if (cube) cube.doMove("L") }} ref={buttonRefL}>L</button>
-              <button onClick={() => { if (cube) cube.doMove("L'") }} ref={buttonRefLinv}>L'</button>
-              <button onClick={() => { if (cube) cube.doMove("R") }} ref={buttonRefR}>R</button>
-              <button onClick={() => { if (cube) cube.doMove("R'") }} ref={buttonRefRinv}>R'</button>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <button onClick={() => { if (cube) cube.doMove("x") }} ref={buttonRefx}>x</button>
-              <button onClick={() => { if (cube) cube.doMove("x'") }} ref={buttonRefxinv}>x'</button>
-              <button onClick={() => { if (cube) cube.doMove("y") }} ref={buttonRefy}>y</button>
-              <button onClick={() => { if (cube) cube.doMove("y'") }} ref={buttonRefyinv}>y'</button>
-              <button onClick={() => { if (cube) cube.doMove("z") }} ref={buttonRefz}>z</button>
-              <button onClick={() => { if (cube) cube.doMove("z'") }} ref={buttonRefzinv}>z'</button>
             </td>
           </tr>
           <tr>

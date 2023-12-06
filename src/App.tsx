@@ -136,7 +136,7 @@ function CubeApp(props: CubeAppProps) {
       };
       document.addEventListener("keydown", onKeyPressed, false);
     }
-  }, [props]);
+  }, [props, faceButtons, layerInputs]);
 
   return (
     <>

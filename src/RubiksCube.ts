@@ -380,7 +380,7 @@ export class RubiksCube {
   }
 
   private renderMain() {
-    window.requestAnimationFrame(this.renderMain.bind(this));
+    //window.requestAnimationFrame(this.renderMain.bind(this));
     this.cameraMainView.render(this.scene);
   }
 
@@ -394,7 +394,10 @@ export class RubiksCube {
     this.renderMain();
     this.renderFaces();
     // Initial load may not have loaded assets yet
-    setTimeout(this.renderFaces.bind(this), 200);
+    setTimeout(() => {
+      this.renderMain();
+      this.renderFaces();
+    }, 100);
   }
 
   /*
@@ -608,6 +611,8 @@ export class RubiksCube {
           default:
             break;
         }
+
+        this.cameraMainView.render(this.scene);
 
         return elapsed <= duration
           ? resolve(this.rotateObject(object, axis, clockwise, duration, s))

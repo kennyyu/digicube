@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { RubiksCube, CUBE_MOVE_MAP } from './RubiksCube';
+import { RubiksCube } from './RubiksCube';
 import materials from './materials';
 
 function App() {
@@ -47,15 +47,23 @@ function CubeApp(props: CubeAppProps) {
   // State to store the current cube
   const [cube, setCube] = useState<RubiksCube>();
 
-  // State to store all buttons to perform moves
-  const [buttons, setButtons] = useState<Map<string, HTMLButtonElement>>(new Map());
+  // Buttons that can be triggered by hotkeys
+  const [faceButtons, setFaceButtons] =
+    useState<Map<string, HTMLButtonElement>>(new Map());
+  const [layerInputs, setLayerInputs] =
+    useState<Map<number, HTMLInputElement>>(new Map());
 
-  // All possible moves
-  const allMoves = CUBE_MOVE_MAP.get(props.cubeSize)?.keys();
-  if (!allMoves) {
-    throw new Error(`No moves found for cube size ${props.cubeSize}`);
-  }
+  // Currently selected layer
+  const [layer, setLayer] = useState<number>(0);
 
+  // Combines the selected layer and face and executes the move
+  const moveFaceAndLayer = (faceName: string) => {
+    const moveName =
+      `${(layer === 0 || ["x", "x'", "y", "y'", "z", "z'"].includes(faceName))
+        ? ""
+        : layer}${faceName}`;
+    cube?.doMove(moveName)
+  };
 
   useEffect(() => {
     if (canvasRef.current
@@ -78,62 +86,51 @@ function CubeApp(props: CubeAppProps) {
         materials.classic,
         100,
       ));
+      // Select layer 0 as default
+      layerInputs.get(0)?.click();
+
+      const hotkeyToFaceMap = new Map<string, string>([
+        ["q", "F"],
+        ["e", "B"],
+        ["w", "U"],
+        ["s", "D"],
+        ["a", "L"],
+        ["d", "R"],
+        ["Q", "F'"],
+        ["E", "B'"],
+        ["W", "U'"],
+        ["S", "D'"],
+        ["A", "L'"],
+        ["D", "R'"],
+        ["l", "x"],
+        ["k", "y"],
+        ["j", "z"],
+        ["L", "x'"],
+        ["K", "y'"],
+        ["J", "z'"],
+      ]);
 
       const onKeyPressed = (event: KeyboardEvent) => {
         switch (event.key) {
-          case "q":
-            buttons.get("F")?.click();
+          case "0":
+          case "1":
+          case "2":
+          case "3":
+          case "4":
+          case "5":
+          case "6":
+          case "7":
+          case "8":
+          case "9":
+            const layerNum = parseInt(event.key);
+            layerInputs.get(layerNum)?.click();
             break;
-          case "e":
-            buttons.get("B")?.click();
-            break;
-          case "w":
-            buttons.get("U")?.click();
-            break;
-          case "s":
-            buttons.get("D")?.click();
-            break;
-          case "a":
-            buttons.get("L")?.click();
-            break;
-          case "d":
-            buttons.get("R")?.click();
-            break;
-          case "Q":
-            buttons.get("F'")?.click();
-            break;
-          case "E":
-            buttons.get("B'")?.click();
-            break;
-          case "W":
-            buttons.get("U'")?.click();
-            break;
-          case "S":
-            buttons.get("D'")?.click();
-            break;
-          case "A":
-            buttons.get("L'")?.click();
-            break;
-          case "D":
-            buttons.get("R'")?.click();
-            break;
-          case "l":
-            buttons.get("x")?.click();
-            break;
-          case "k":
-            buttons.get("y")?.click();
-            break;
-          case "j":
-            buttons.get("z")?.click();
-            break;
-          case "L":
-            buttons.get("x'")?.click();
-            break;
-          case "K":
-            buttons.get("y'")?.click();
-            break;
-          case "J":
-            buttons.get("z'")?.click();
+          default:
+            const faceName = hotkeyToFaceMap.get(event.key);
+            if (!faceName) {
+              break;
+            }
+            faceButtons.get(faceName)?.click();
             break;
         }
       };
@@ -202,19 +199,69 @@ function CubeApp(props: CubeAppProps) {
           </tr>
           <tr>
             <td>
+              Full Cube Rotation:
               {
-                [...allMoves].map((moveName) => (
-                  <button
-                    key={moveName}
-                    onClick={() => { if (cube) cube.doMove(moveName); }}
-                    ref={(ref) => {
-                      if (ref) {
-                        setButtons(buttons.set(moveName, ref));
-                      }
-                    }}>
-                    {moveName}
-                  </button>
-                ))
+                ["x", "x'", "y", "y'", "z", "z'"]
+                  .map((moveName) => (
+                    <button
+                      key={moveName}
+                      onClick={() => { if (cube) cube.doMove(moveName); }}
+                      ref={(ref) => {
+                        if (ref) {
+                          setFaceButtons(faceButtons.set(moveName, ref));
+                        }
+                      }}>
+                      {moveName}
+                    </button>
+                  ))
+              }
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Layer:
+              {
+                [...Array(Math.floor(props.cubeSize / 2)).keys()]
+                  .map((layerNum: number) => (
+                    <>
+                      <input
+                        type="radio"
+                        value={layerNum}
+                        id={`Layer${layerNum}`}
+                        name="layerNum"
+                        onChange={() => { setLayer(layerNum) }}
+                        defaultChecked={layerNum === 0}
+                        ref={(ref) => {
+                          if (ref) {
+                            setLayerInputs(layerInputs.set(layerNum, ref));
+                          }
+                        }}
+                      />
+                      <label htmlFor={`Layer${layerNum}`}>
+                        {layerNum}
+                      </label>
+                    </>
+                  ))
+              }
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Face Rotation:
+              {
+                ["F", "F'", "B", "B'", "U", "U'", "D", "D'", "R", "R'", "L", "L'"]
+                  .map((faceName) => (
+                    <button
+                      key={faceName}
+                      onClick={() => { moveFaceAndLayer(faceName); }}
+                      ref={(ref) => {
+                        if (ref) {
+                          setFaceButtons(faceButtons.set(faceName, ref));
+                        }
+                      }}>
+                      {faceName}
+                    </button>
+                  ))
               }
             </td>
           </tr>

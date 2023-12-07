@@ -138,7 +138,7 @@ function getCubeMoveMap(cubeSize: number): Map<string, CubeMove> {
   // y' -> rotate all layers counter-clockwise around y axis
   for (const moveName of ["x", "y", "z"]) {
     for (const clockwise of [true, false]) {
-      const moveNameFinal = `${moveName}${clockwise ? "'" : ""}`;
+      const moveNameFinal = `${moveName}${clockwise ? "" : "'"}`;
       moveMap.set(moveNameFinal, {
         axis: moveName as Axis,
         clockwise: clockwise,

@@ -118,14 +118,15 @@ type CubeMove = {
   clockwise: boolean;
   cubeSize: number;
   // Layers always start from the positive axis direction.
-  // Examples: X, layer 0 == R. Y, layer 0 == U. Z, layer 0 == F
+  // Layers are 1-indexed.
+  // Examples: X, layer 1 == R. Y, layer 1 == U. Z, layer 1 == F
   layers: number[];
 };
 
 // Returns the coordinates of the cubes in the provided layers
 function getCubeCoords(cubeSize: number, layers: number[]): number[] {
   const initialCoord = (cubeSize - 1) / 2;
-  return layers.map((x) => initialCoord - x);
+  return layers.map((x) => initialCoord - x + 1);
 }
 
 // Gets all possible moves on cubeSize x cubeSize x cubeSize cube
@@ -142,7 +143,7 @@ function getCubeMoveMap(cubeSize: number): Map<string, CubeMove> {
         axis: moveName as Axis,
         clockwise: clockwise,
         cubeSize: cubeSize,
-        layers: Array.from(Array(cubeSize).keys()),
+        layers: Array.from(Array(cubeSize).keys()).map((x) => x + 1),
       });
     }
   }
@@ -161,16 +162,17 @@ function getCubeMoveMap(cubeSize: number): Map<string, CubeMove> {
   const layersInverted = new Set<string>(["B", "D", "L"]);
 
   // Individual turns on each layer, e.g.
-  // F -> turn front layer clockwise (no 0 prefix)
-  // 1F' -> turn second front layer counter-clockwise
+  // F -> turn front layer clockwise (no 1 prefix)
+  // 2F' -> turn second front layer counter-clockwise
   for (const [face, axis] of faceToAxisMap) {
     for (const clockwise of [true, false]) {
-      for (const layerNum of Array(Math.floor(cubeSize / 2)).keys()) {
+      for (const layerNumOffset of Array(Math.floor(cubeSize / 2)).keys()) {
+        const layerNum = layerNumOffset + 1;
         const moveNameFinal = `${face}${clockwise ? "" : "'"}`;
         const layerNumFinal = layersInverted.has(face)
-          ? cubeSize - 1 - layerNum : layerNum;
-        // Special case: layer 0 -- no 0 prefix required
-        moveMap.set(`${layerNum === 0 ? "" : layerNum}${moveNameFinal}`, {
+          ? cubeSize - layerNum + 1 : layerNum;
+        // Special case: layer 1 -- no 1 prefix required
+        moveMap.set(`${layerNum === 1 ? "" : layerNum}${moveNameFinal}`, {
           axis: axis,
           clockwise: clockwise,
           cubeSize: cubeSize,
@@ -196,9 +198,9 @@ export const CUBE_MOVE_MAP = getAllCubeMoveMaps();
 // Creates (cubeSize x cubeSize x cubeSize) cubes, where the cubes
 // are centered around the origin. Examples:
 // 3x3 -- F: z == 1, B: z == -1
-// 4x4 -- F: z == 1.5, 1F = 0.5, 1B = -0.5, B = -1.5
-// 5x5 -- F: z == 2, 1F == 1, 1B == -1, B == -2
-// 6x6 -- F: z == 2.5, 1F == 1.5, 2F == 0.5, 2B == -0.5, 1B == -1.5, B == -2.5
+// 4x4 -- F: z == 1.5, 2F = 0.5, 2B = -0.5, B = -1.5
+// 5x5 -- F: z == 2, 2F == 1, 2B == -1, B == -2
+// 6x6 -- F: z == 2.5, 2F == 1.5, 3F == 0.5, 3B == -0.5, 2B == -1.5, B == -2.5
 function generateCubeCluster(
   cubeSize: number,
   materials: THREE.MeshBasicMaterial[],

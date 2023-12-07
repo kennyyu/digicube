@@ -54,12 +54,12 @@ function CubeApp(props: CubeAppProps) {
     useState<Map<number, HTMLInputElement>>(new Map());
 
   // Currently selected layer
-  const [layer, setLayer] = useState<number>(0);
+  const [layer, setLayer] = useState<number>(1);
 
   // Combines the selected layer and face and executes the move
   const moveFaceAndLayer = (faceName: string) => {
     const moveName =
-      `${(layer === 0 || ["x", "x'", "y", "y'", "z", "z'"].includes(faceName))
+      `${(layer === 1 || ["x", "x'", "y", "y'", "z", "z'"].includes(faceName))
         ? ""
         : layer}${faceName}`;
     cube?.doMove(moveName)
@@ -87,7 +87,7 @@ function CubeApp(props: CubeAppProps) {
         100,
       ));
       // Select layer 0 as default
-      layerInputs.get(0)?.click();
+      layerInputs.get(1)?.click();
 
       const hotkeyToFaceMap = new Map<string, string>([
         ["q", "F"],
@@ -112,7 +112,6 @@ function CubeApp(props: CubeAppProps) {
 
       const onKeyPressed = (event: KeyboardEvent) => {
         switch (event.key) {
-          case "0":
           case "1":
           case "2":
           case "3":
@@ -254,6 +253,7 @@ function CubeApp(props: CubeAppProps) {
               Layer:
               {
                 [...Array(Math.floor(props.cubeSize / 2)).keys()]
+                  .map((layerNum: number) => layerNum + 1)
                   .map((layerNum: number) => (
                     <>
                       <input
@@ -262,7 +262,7 @@ function CubeApp(props: CubeAppProps) {
                         id={`Layer${layerNum}`}
                         name="layerNum"
                         onChange={() => { setLayer(layerNum) }}
-                        defaultChecked={layerNum === 0}
+                        defaultChecked={layerNum === 1}
                         ref={(ref) => {
                           if (ref) {
                             setLayerInputs(layerInputs.set(layerNum, ref));

@@ -32,6 +32,99 @@ type CubeAppProps = {
   cubeSize: number;
 };
 
+enum CubeTouchEventDirection {
+  BottomRight = "BottomRight",
+  TopLeft = "TopLeft",
+  TopRight = "TopRight",
+  BottomLeft = "BottomLeft",
+  HorizontalRight = "HorizontalRight",
+  HorizontalLeft = "HorizontalLeft",
+};
+
+enum ScreenHalf {
+  Upper = "Upper",
+  Lower = "Lower",
+};
+
+type CubeTouchEvent = {
+  numFingers: number;
+  direction: CubeTouchEventDirection;
+  screenHalf: ScreenHalf;
+};
+
+type TouchState = {
+  activeTouchMap: Map<number, Touch>;
+};
+
+function getMoveFromCubeTouchEvent(event: CubeTouchEvent): string | undefined {
+  const touchEventMap = new Map<CubeTouchEventDirection, Map<number, Map<ScreenHalf, string>>>([
+    [CubeTouchEventDirection.BottomRight, new Map([
+      [1, new Map([
+        [ScreenHalf.Upper, "B"],
+        [ScreenHalf.Lower, "F"],
+      ])],
+      [2, new Map([
+        [ScreenHalf.Upper, "z"],
+        [ScreenHalf.Lower, "z"]
+      ])],
+    ])],
+    [CubeTouchEventDirection.TopLeft, new Map([
+      [1, new Map([
+        [ScreenHalf.Upper, "B'"],
+        [ScreenHalf.Lower, "F'"],
+      ])],
+      [2, new Map([
+        [ScreenHalf.Upper, "z'"],
+        [ScreenHalf.Lower, "z'"]
+      ])],
+    ])],
+    [CubeTouchEventDirection.TopRight, new Map([
+      [1, new Map([
+        [ScreenHalf.Upper, "L"],
+        [ScreenHalf.Lower, "R"],
+      ])],
+      [2, new Map([
+        [ScreenHalf.Upper, "x"],
+        [ScreenHalf.Lower, "x"]
+      ])],
+    ])],
+    [CubeTouchEventDirection.BottomLeft, new Map([
+      [1, new Map([
+        [ScreenHalf.Upper, "L'"],
+        [ScreenHalf.Lower, "R'"],
+      ])],
+      [2, new Map([
+        [ScreenHalf.Upper, "x'"],
+        [ScreenHalf.Lower, "x'"]
+      ])],
+    ])],
+    [CubeTouchEventDirection.HorizontalRight, new Map([
+      [1, new Map([
+        [ScreenHalf.Upper, "U'"],
+        [ScreenHalf.Lower, "D'"],
+      ])],
+      [2, new Map([
+        [ScreenHalf.Upper, "y'"],
+        [ScreenHalf.Lower, "y'"]
+      ])],
+    ])],
+    [CubeTouchEventDirection.HorizontalLeft, new Map([
+      [1, new Map([
+        [ScreenHalf.Upper, "U"],
+        [ScreenHalf.Lower, "D"],
+      ])],
+      [2, new Map([
+        [ScreenHalf.Upper, "y"],
+        [ScreenHalf.Lower, "y"]
+      ])],
+    ])],
+  ]);
+
+  return touchEventMap.get(event.direction)?.get(event.numFingers)?.get(event.screenHalf);
+}
+
+let touchHandlerRegistered = false;
+
 function CubeApp(props: CubeAppProps) {
   // Main canvas to display the 3d cube
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -133,7 +226,115 @@ function CubeApp(props: CubeAppProps) {
             break;
         }
       };
+
+      // Stores the map of active touches
+      let touchState: TouchState = {
+        activeTouchMap: new Map(),
+      };
+
+      const onTouchStart = (event: TouchEvent) => {
+//        event.preventDefault();
+
+        for (const touch of event.changedTouches) {
+          touchState.activeTouchMap.set(touch.identifier, touch);
+        }
+      };
+
+      const onTouchEnd = (event: TouchEvent) => {
+//        event.preventDefault();
+
+        const isMultipleFingers = event.changedTouches.length > 1;
+
+        for (const touch of event.changedTouches) {
+          console.log("touch end");
+          console.log(touch);
+          const startTouch = touchState.activeTouchMap.get(touch.identifier);
+          if (!startTouch) {
+            continue;
+          }
+          console.log("touch start");
+          console.log(startTouch);
+
+          // If x and y are too close, ignore
+          if (Math.abs(startTouch.clientX - touch.clientX) < 10
+            && Math.abs(startTouch.clientY - touch.clientY) < 10) {
+            continue;
+          }
+
+          // Get direction
+          const isGoingRight = startTouch.clientX < touch.clientX;
+          const isGoingDown = startTouch.clientY < touch.clientY;
+          // TODO: remove constant
+          const isHorizontal = Math.abs(startTouch.clientY - touch.clientY) < 10;
+          let direction = CubeTouchEventDirection.BottomLeft;
+          if (isGoingRight && isHorizontal) {
+            direction = CubeTouchEventDirection.HorizontalRight;
+          } else if (isGoingRight && isGoingDown) {
+            direction = CubeTouchEventDirection.BottomRight;
+          } else if (isGoingRight && !isGoingDown) {
+            direction = CubeTouchEventDirection.TopRight;
+          } else if (!isGoingRight && isHorizontal) {
+            direction = CubeTouchEventDirection.HorizontalLeft;
+          } else if (!isGoingRight && isGoingDown) {
+            direction = CubeTouchEventDirection.BottomLeft;
+          } else if (!isGoingRight && !isGoingDown) {
+            direction = CubeTouchEventDirection.TopLeft;
+          }
+
+          // Get screen half
+          // TODO: remove constants
+          let midPosY = 0;
+          switch (direction) {
+            case CubeTouchEventDirection.TopLeft:
+            case CubeTouchEventDirection.BottomRight:
+              midPosY = 248;
+              break;
+            case CubeTouchEventDirection.BottomLeft:
+            case CubeTouchEventDirection.TopRight:
+              midPosY = 248;
+              break;
+            case CubeTouchEventDirection.HorizontalRight:
+            case CubeTouchEventDirection.HorizontalLeft:
+              midPosY = 426;
+              break;
+
+          }
+          const screenHalf = (
+            (midPosY - startTouch.clientY)
+            + (midPosY - touch.clientY)
+          ) > 0
+            ? ScreenHalf.Upper
+            : ScreenHalf.Lower;
+
+          const cubeTouchEvent = {
+            numFingers: isMultipleFingers ? 2 : 1,
+            direction: direction,
+            screenHalf: screenHalf,
+          };
+          console.log(cubeTouchEvent);
+          const faceName = getMoveFromCubeTouchEvent(cubeTouchEvent);
+          if (!faceName) {
+            continue;
+          }
+          faceButtons.get(faceName)?.click();
+          // Only execute cube rotation once
+          if (isMultipleFingers) {
+            break;
+          }
+        }
+        for (const touch of event.changedTouches) {
+          touchState.activeTouchMap.delete(touch.identifier);
+        }
+      };
+
       document.addEventListener("keydown", onKeyPressed, false);
+
+      // Ensure the handler is registered only once
+      if (!touchHandlerRegistered) {
+        canvasRef.current.addEventListener("touchstart", onTouchStart, { passive: false });
+        canvasRef.current.addEventListener("touchend", onTouchEnd, { passive: false });
+        touchHandlerRegistered = true;
+      }
     }
   }, [props, faceButtons, layerInputs]);
 
@@ -141,6 +342,75 @@ function CubeApp(props: CubeAppProps) {
     <>
       <table>
         <tbody>
+          <tr>
+            <td>
+              Full Cube Rotation:
+              {
+                ["x", "x'", "y", "y'", "z", "z'"]
+                  .map((moveName) => (
+                    <button
+                      key={moveName}
+                      onClick={() => { if (cube) cube.doMove(moveName); }}
+                      ref={(ref) => {
+                        if (ref) {
+                          setFaceButtons(faceButtons.set(moveName, ref));
+                        }
+                      }}>
+                      {moveName}
+                    </button>
+                  ))
+              }
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Layer:
+              {
+                [...Array(Math.floor(props.cubeSize / 2)).keys()]
+                  .map((layerNum: number) => layerNum + 1)
+                  .map((layerNum: number) => (
+                    <>
+                      <input
+                        type="radio"
+                        value={layerNum}
+                        id={`Layer${layerNum}`}
+                        name="layerNum"
+                        onChange={() => { setLayer(layerNum) }}
+                        defaultChecked={layerNum === 1}
+                        ref={(ref) => {
+                          if (ref) {
+                            setLayerInputs(layerInputs.set(layerNum, ref));
+                          }
+                        }}
+                      />
+                      <label htmlFor={`Layer${layerNum}`}>
+                        {layerNum}
+                      </label>
+                    </>
+                  ))
+              }
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Face Rotation:
+              {
+                ["F", "F'", "B", "B'", "U", "U'", "D", "D'", "R", "R'", "L", "L'"]
+                  .map((faceName) => (
+                    <button
+                      key={faceName}
+                      onClick={() => { moveFaceAndLayer(faceName); }}
+                      ref={(ref) => {
+                        if (ref) {
+                          setFaceButtons(faceButtons.set(faceName, ref));
+                        }
+                      }}>
+                      {faceName}
+                    </button>
+                  ))
+              }
+            </td>
+          </tr>
           <tr>
             <td>
               <button onClick={() => { cube?.scramble() }}>
@@ -226,75 +496,6 @@ function CubeApp(props: CubeAppProps) {
                   </tr>
                 </tbody>
               </table>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Full Cube Rotation:
-              {
-                ["x", "x'", "y", "y'", "z", "z'"]
-                  .map((moveName) => (
-                    <button
-                      key={moveName}
-                      onClick={() => { if (cube) cube.doMove(moveName); }}
-                      ref={(ref) => {
-                        if (ref) {
-                          setFaceButtons(faceButtons.set(moveName, ref));
-                        }
-                      }}>
-                      {moveName}
-                    </button>
-                  ))
-              }
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Layer:
-              {
-                [...Array(Math.floor(props.cubeSize / 2)).keys()]
-                  .map((layerNum: number) => layerNum + 1)
-                  .map((layerNum: number) => (
-                    <>
-                      <input
-                        type="radio"
-                        value={layerNum}
-                        id={`Layer${layerNum}`}
-                        name="layerNum"
-                        onChange={() => { setLayer(layerNum) }}
-                        defaultChecked={layerNum === 1}
-                        ref={(ref) => {
-                          if (ref) {
-                            setLayerInputs(layerInputs.set(layerNum, ref));
-                          }
-                        }}
-                      />
-                      <label htmlFor={`Layer${layerNum}`}>
-                        {layerNum}
-                      </label>
-                    </>
-                  ))
-              }
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Face Rotation:
-              {
-                ["F", "F'", "B", "B'", "U", "U'", "D", "D'", "R", "R'", "L", "L'"]
-                  .map((faceName) => (
-                    <button
-                      key={faceName}
-                      onClick={() => { moveFaceAndLayer(faceName); }}
-                      ref={(ref) => {
-                        if (ref) {
-                          setFaceButtons(faceButtons.set(faceName, ref));
-                        }
-                      }}>
-                      {faceName}
-                    </button>
-                  ))
-              }
             </td>
           </tr>
         </tbody>

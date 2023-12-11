@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/digicube/static/css/main.e6c13ad2.css",
-    "main.js": "/digicube/static/js/main.3dfcdea2.js",
+    "main.js": "/digicube/static/js/main.3099611c.js",
     "static/js/787.d4aba7ab.chunk.js": "/digicube/static/js/787.d4aba7ab.chunk.js",
     "static/media/orange.png": "/digicube/static/media/orange.02740eac0f2faa628bb1.png",
     "static/media/yellow.png": "/digicube/static/media/yellow.d89ce0ad6e87005712ef.png",
@@ -11,11 +11,11 @@
     "static/media/white.png": "/digicube/static/media/white.2af582fa544242c576f4.png",
     "index.html": "/digicube/index.html",
     "main.e6c13ad2.css.map": "/digicube/static/css/main.e6c13ad2.css.map",
-    "main.3dfcdea2.js.map": "/digicube/static/js/main.3dfcdea2.js.map",
+    "main.3099611c.js.map": "/digicube/static/js/main.3099611c.js.map",
     "787.d4aba7ab.chunk.js.map": "/digicube/static/js/787.d4aba7ab.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.3dfcdea2.js"
+    "static/js/main.3099611c.js"
   ]
 }
